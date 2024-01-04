@@ -1,12 +1,11 @@
 package com.example.xevivuapp.navigation
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.xevivuapp.screen.HomeScreen
+import com.example.xevivuapp.screen.LoginAndSignUpScreen
 import com.example.xevivuapp.screen.WelcomeScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -24,8 +23,8 @@ fun SetupNavGraph(
         composable(route = Screen.Welcome.route) {
             WelcomeScreen(navController = navController)
         }
-        composable(route = Screen.Home.route) {
-            HomeScreen()
+        composable(route = Screen.LoginAndSignUp.route) {
+            LoginAndSignUpScreen()
         }
     }
 }

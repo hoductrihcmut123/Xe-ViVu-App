@@ -3,6 +3,7 @@ package com.example.xevivuapp.screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -40,7 +41,10 @@ fun WelcomeScreen(
     )
     val pagerState = rememberPagerState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)
+    ) {
         HorizontalPager(
             modifier = Modifier.weight(8.5f),
             count = 3,
@@ -67,7 +71,7 @@ fun WelcomeScreen(
         ) {
             welcomeViewModel.saveOnBoardingState(completed = true)
             navController.popBackStack()
-            navController.navigate(Screen.Home.route)
+            navController.navigate(Screen.LoginAndSignUp.route)
         }
     }
 }
@@ -133,7 +137,8 @@ fun FinishButton(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White
-                )
+                ),
+                elevation = ButtonDefaults.elevation(0.dp, 0.dp)
             ) {
                 Text(
                     text = "BẮT ĐẦU NÀO !",

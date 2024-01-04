@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp"
+    tools:context=".SignupActivity">
+
+    <TextView
+        android:id="@+id/signupTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textFontWeight="700"
+        android:gravity="center"
+        android:text="Tạo tài khoản"
+        android:textColor="@color/text_color"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="20dp"/>
+
+    <TextView
+        android:id="@+id/titleLastname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textFontWeight="700"
+        android:text="HỌ"
+        android:textColor="@color/text_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/titleFirstname"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/signupLastname"
+        android:layout_marginTop="175dp"
+        android:layout_marginStart="25dp" />
+
+    <EditText
+        android:id="@+id/signupLastname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint=" Lastname"
+        android:textColorHint="@color/edittext_background"
+        android:textColor="@color/text_color"
+        app:layout_constraintHorizontal_weight="1"
+        android:padding="12dp"
+        android:background="@drawable/edittext_border"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/signupFirstname"
+        app:layout_constraintTop_toBottomOf="@id/titleLastname"
+        app:layout_constraintBottom_toTopOf="@id/titlePhoneNumber"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="25dp" />
+
+    <TextView
+        android:id="@+id/titleFirstname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textFontWeight="700"
+        android:text="TÊN"
+        android:textColor="@color/text_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/titleLastname"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/signupFirstname"
+        android:layout_marginTop="175dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="25dp" />
+
+    <EditText
+        android:id="@+id/signupFirstname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint=" Firstname"
+        android:textColorHint="@color/edittext_background"
+        android:textColor="@color/text_color"
+        app:layout_constraintHorizontal_weight="1"
+        android:padding="12dp"
+        android:background="@drawable/edittext_border"
+        app:layout_constraintStart_toEndOf="@id/signupLastname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleFirstname"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="25dp" />
+
+    <TextView
+        android:id="@+id/titlePhoneNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textFontWeight="700"
+        android:text="SỐ ĐIỆN THOẠI"
+        android:textColor="@color/text_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signupLastname"
+        app:layout_constraintBottom_toTopOf="@id/signupPhoneNumber"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp" />
+
+    <EditText
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint=" Phone Number"
+        android:textColorHint="@color/edittext_background"
+        android:id="@+id/signupPhoneNumber"
+        android:inputType="phone"
+        android:textColor="@color/text_color"
+        android:padding="12dp"
+        android:background="@drawable/edittext_border"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titlePhoneNumber"
+        app:layout_constraintBottom_toTopOf="@id/titlePassword"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp" />
+
+    <TextView
+        android:id="@+id/titlePassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        android:textFontWeight="700"
+        android:text="MẬT KHẨU"
+        android:textColor="@color/text_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signupPhoneNumber"
+        app:layout_constraintBottom_toTopOf="@id/signupPassword"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
+        app:layout_constraintBottom_toTopOf="@id/signupButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titlePassword"
+        android:id="@+id/signupPassword">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:passwordToggleEnabled="true"
+            app:hintEnabled="false">
+
+            <EditText
+                android:id="@+id/signupPasswordChild"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_border"
+                android:hint=" Password"
+                android:textColorHint="@color/edittext_background"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:textColor="@color/text_color" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <Button
+        android:id="@+id/signupButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="75dp"
+        android:layout_marginEnd="25dp"
+        android:backgroundTint="@color/button_background"
+        android:background="@drawable/button_border"
+        android:fontFamily="@font/inter"
+        android:padding="18dp"
+        android:stateListAnimator="@null"
+        android:text="Tạo tài khoản"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textFontWeight="700"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signupPassword" />
+
+    <TextView
+        android:id="@+id/signupSubContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        app:layout_constraintHorizontal_weight="1"
+        android:textFontWeight="400"
+        android:text="Bạn đã có tài khoản ?"
+        android:gravity="end|center"
+        android:textColor="@color/sub_content"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/signupNavLogin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signupButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="10dp" />
+
+    <TextView
+        android:id="@+id/signupNavLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter"
+        app:layout_constraintHorizontal_weight="0.6"
+        android:textFontWeight="400"
+        android:text="@string/Login"
+        android:gravity="start"
+        android:textColor="@color/button_background"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/signupSubContent"
+        app:layout_constraintTop_toBottomOf="@id/signupButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="25dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="text_color">#3E4958</color>
+    <color name="edittext_background">#F7F8F9</color>
+    <color name="edittext_stroke">#D5DDE0</color>
+    <color name="button_background">#1152FD</color>
+    <color name="sub_content">#979EB6</color>
+    <color name="forgot_password">#BABABA</color>
 </resources>
