@@ -184,7 +184,7 @@
         android:backgroundTint="@color/button_background"
         android:background="@drawable/button_border"
         android:fontFamily="@font/inter"
-        android:padding="18dp"
+        android:padding="16dp"
         android:stateListAnimator="@null"
         android:text="Tạo tài khoản"
         android:textAllCaps="false"

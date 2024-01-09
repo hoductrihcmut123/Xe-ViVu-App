@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xevivuapp.LoginActivity
+import com.example.xevivuapp.PermissionActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.SignupActivity
 

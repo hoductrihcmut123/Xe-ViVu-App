@@ -29,46 +29,53 @@ class LoginActivity : AppCompatActivity() {
             val loginPhoneNumber = binding.loginPhoneNumber.text.toString()
             val loginPassword = binding.loginPasswordChild.text.toString()
 
-            if(loginPhoneNumber.isNotEmpty() && loginPassword.isNotEmpty()){
+            if (loginPhoneNumber.isNotEmpty() && loginPassword.isNotEmpty()) {
                 loginPassenger(loginPhoneNumber, loginPassword)
-            }
-            else {
-                Toast.makeText(this@LoginActivity,"Bạn vui lòng điền đầy đủ thông tin nhé!",
-                    Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    this@LoginActivity, "Bạn vui lòng điền đầy đủ thông tin nhé!",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
-        binding.loginNavSignup.setOnClickListener{
-            startActivity(Intent(this@LoginActivity,SignupActivity::class.java))
+        binding.loginNavSignup.setOnClickListener {
+            startActivity(Intent(this@LoginActivity, SignupActivity::class.java))
             finish()
         }
     }
 
-    private fun loginPassenger(phoneNumber: String, password: String){
+    private fun loginPassenger(phoneNumber: String, password: String) {
         databaseReference.orderByChild("mobile_No")
             .equalTo(phoneNumber)
-            .addListenerForSingleValueEvent(object: ValueEventListener{
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(userSnapshot in dataSnapshot.children){
-                        val userData = userSnapshot.getValue(PassengerData::class.java)
-                        if(userData != null && userData.password == password){
-                            Toast.makeText(this@LoginActivity,"Chúc mừng bạn đã đăng nhập thành công!",
-                                Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                            finish()
-                            return
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (userSnapshot in dataSnapshot.children) {
+                            val userData = userSnapshot.getValue(PassengerData::class.java)
+                            if (userData != null && userData.password == password) {
+                                Toast.makeText(
+                                    this@LoginActivity, "Chúc mừng bạn đã đăng nhập thành công!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                startActivity(Intent(this@LoginActivity, PermissionActivity::class.java))
+                                finish()
+                                return
+                            }
                         }
                     }
+                    Toast.makeText(
+                        this@LoginActivity, "Sai thông tin, bạn kiểm tra lại nhé!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-                Toast.makeText(this@LoginActivity,"Sai thông tin, bạn kiểm tra lại nhé!",
-                    Toast.LENGTH_SHORT).show()
-            }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@LoginActivity,"Database Error: ${databaseError.message}",
-                    Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Toast.makeText(
+                        this@LoginActivity, "Database Error: ${databaseError.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
     }
 }

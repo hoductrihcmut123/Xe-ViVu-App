@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Xe Vivu App</string>
+    <string name="app_name">Xe Vivu</string>
     <string name="title_activity_main_test">MainActivity_test</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -45,4 +45,5 @@
     </string>
     <string name="Login"><u>Đăng nhập</u></string>
     <string name="SignUp"><u>Đăng ký</u></string>
+    <string name="ResendCode"><u>Gửi lại mã</u></string>
 </resources>
