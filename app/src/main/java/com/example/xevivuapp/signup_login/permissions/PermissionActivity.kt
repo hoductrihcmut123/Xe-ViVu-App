@@ -1,4 +1,4 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.signup_login.permissions
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.xevivuapp.HomeActivity
 import com.example.xevivuapp.databinding.ActivityPermissionBinding
 
 const val REQUEST_CODE = 300

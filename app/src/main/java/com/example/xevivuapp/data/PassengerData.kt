@@ -1,4 +1,4 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.data
 
 data class PassengerData(
     val user_ID :String? = null,

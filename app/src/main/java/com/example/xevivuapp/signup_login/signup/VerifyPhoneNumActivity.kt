@@ -1,4 +1,4 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.signup_login.signup
 
 import android.content.Intent
 import android.graphics.Paint
@@ -8,7 +8,10 @@ import android.os.CountDownTimer
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.example.xevivuapp.R
+import com.example.xevivuapp.data.PassengerData
 import com.example.xevivuapp.databinding.ActivityVerifyPhonenumBinding
+import com.example.xevivuapp.signup_login.permissions.PermissionActivity
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException

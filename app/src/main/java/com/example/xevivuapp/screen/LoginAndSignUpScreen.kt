@@ -30,10 +30,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.xevivuapp.LoginActivity
-import com.example.xevivuapp.PermissionActivity
+import com.example.xevivuapp.signup_login.login.LoginActivity
 import com.example.xevivuapp.R
-import com.example.xevivuapp.SignupActivity
+import com.example.xevivuapp.signup_login.signup.SignupActivity
 
 
 @Composable

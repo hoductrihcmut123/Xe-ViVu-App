@@ -1,11 +1,12 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.signup_login.forgot_password
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.example.xevivuapp.databinding.ActivitySignupBinding
+import com.example.xevivuapp.signup_login.signup.SignupActivity
+import com.example.xevivuapp.databinding.ActivityForgotPasswordBinding
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -18,9 +19,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.util.concurrent.TimeUnit
 
-class SignupActivity : AppCompatActivity() {
+class ForgotPasswordActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignupBinding
+    private lateinit var binding: ActivityForgotPasswordBinding
     private lateinit var firebaseDatabase: FirebaseDatabase
     private lateinit var databaseReference: DatabaseReference
 
@@ -29,60 +30,49 @@ class SignupActivity : AppCompatActivity() {
     lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
     private lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
 
-
-    private lateinit var signupLastname: String
-    private lateinit var signupFirstname: String
-    private lateinit var signupPhoneNumber: String
-    private lateinit var signupPassword: String
+    private lateinit var fpPhoneNumber: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySignupBinding.inflate(layoutInflater)
+        binding = ActivityForgotPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         firebaseDatabase = FirebaseDatabase.getInstance()
         databaseReference = firebaseDatabase.reference.child("Passengers")
         auth = FirebaseAuth.getInstance()
 
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            startActivity(Intent(this@SignupActivity, HomeActivity::class.java))
-            finish()
+        binding.backButton.setOnClickListener {
+            onBackPressed()
         }
 
-        binding.signupButton.setOnClickListener {
+        binding.fpButton.setOnClickListener {
 
-            signupLastname = binding.signupLastname.text.toString()
-            signupFirstname = binding.signupFirstname.text.toString()
-            signupPhoneNumber = binding.signupPhoneNumber.text.toString()
-            signupPassword = binding.signupPasswordChild.text.toString()
+            fpPhoneNumber = binding.fpPhoneNumber.text.toString()
 
-            if (signupLastname.isNotEmpty() && signupFirstname.isNotEmpty() &&
-                signupPhoneNumber.isNotEmpty() && signupPassword.isNotEmpty()
-            ) {
-                signupPassenger(signupPhoneNumber)
+            if (fpPhoneNumber.isNotEmpty()) {
+                fpPassenger(fpPhoneNumber)
             } else {
                 Toast.makeText(
-                    this@SignupActivity, "Bạn vui lòng điền đầy đủ thông tin nhé!",
+                    this@ForgotPasswordActivity, "Bạn vui lòng điền Số điện thoại nhé!",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
 
-        binding.signupNavLogin.setOnClickListener {
-            startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+        binding.fpNavSignup.setOnClickListener {
+            startActivity(Intent(this@ForgotPasswordActivity, SignupActivity::class.java))
             finish()
         }
 
         // Callback function for Phone Auth
         callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                startActivity(Intent(this@SignupActivity, HomeActivity::class.java))
+                startActivity(Intent(this@ForgotPasswordActivity, NewPasswordActivity::class.java))
                 finish()
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                Toast.makeText(this@SignupActivity, "Có lỗi xảy ra!", Toast.LENGTH_SHORT)
+                Toast.makeText(this@ForgotPasswordActivity, "Có lỗi xảy ra!", Toast.LENGTH_SHORT)
                     .show()
             }
 
@@ -94,34 +84,31 @@ class SignupActivity : AppCompatActivity() {
                 storedVerificationId = verificationId
                 resendToken = token
 
-                val intent = Intent(this@SignupActivity, VerifyPhoneNumActivity::class.java)
+                val intent = Intent(this@ForgotPasswordActivity, VerifyPhoneNumFPActivity::class.java)
                 intent.putExtra("storedVerificationId", storedVerificationId)
-                intent.putExtra("signupLastname", signupLastname)
-                intent.putExtra("signupFirstname", signupFirstname)
-                intent.putExtra("signupPhoneNumber", signupPhoneNumber)
-                intent.putExtra("signupPassword", signupPassword)
+                intent.putExtra("fpPhoneNumber", fpPhoneNumber)
                 startActivity(intent)
             }
         }
     }
 
-    private fun signupPassenger(phoneNumber: String) {
+    private fun fpPassenger(phoneNumber: String) {
         databaseReference.orderByChild("mobile_No")
             .equalTo(phoneNumber)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (!dataSnapshot.exists()) {
+                    if (dataSnapshot.exists()) {
                         val number = "+84$phoneNumber"
                         val options = PhoneAuthOptions.newBuilder(auth)
                             .setPhoneNumber(number) // Phone number to verify
                             .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                            .setActivity(this@SignupActivity) // Activity (for callback binding)
+                            .setActivity(this@ForgotPasswordActivity) // Activity (for callback binding)
                             .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
                             .build()
                         PhoneAuthProvider.verifyPhoneNumber(options)
                     } else {
                         Toast.makeText(
-                            this@SignupActivity, "Rất tiếc, Tài khoản đã tồn tại!",
+                            this@ForgotPasswordActivity, "Rất tiếc, Tài khoản không tồn tại!",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -129,7 +116,7 @@ class SignupActivity : AppCompatActivity() {
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     Toast.makeText(
-                        this@SignupActivity, "Database Error: ${databaseError.message}",
+                        this@ForgotPasswordActivity, "Database Error: ${databaseError.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

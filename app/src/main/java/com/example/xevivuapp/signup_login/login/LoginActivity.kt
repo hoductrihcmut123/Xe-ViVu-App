@@ -1,10 +1,14 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.signup_login.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.example.xevivuapp.signup_login.permissions.PermissionActivity
+import com.example.xevivuapp.signup_login.signup.SignupActivity
+import com.example.xevivuapp.data.PassengerData
 import com.example.xevivuapp.databinding.ActivityLoginBinding
+import com.example.xevivuapp.signup_login.forgot_password.ForgotPasswordActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -24,6 +28,10 @@ class LoginActivity : AppCompatActivity() {
 
         firebaseDatabase = FirebaseDatabase.getInstance()
         databaseReference = firebaseDatabase.reference.child("Passengers")
+
+        binding.loginForgotPassword.setOnClickListener {
+            startActivity(Intent(this@LoginActivity, ForgotPasswordActivity::class.java))
+        }
 
         binding.loginButton.setOnClickListener {
             val loginPhoneNumber = binding.loginPhoneNumber.text.toString()
