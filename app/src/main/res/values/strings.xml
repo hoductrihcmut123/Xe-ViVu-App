@@ -46,4 +46,5 @@
     <string name="Login"><u>Đăng nhập</u></string>
     <string name="SignUp"><u>Đăng ký</u></string>
     <string name="ResendCode"><u>Gửi lại mã</u></string>
+    <string name="google_map_api_key">AIzaSyBX-kwGIxKfTDhScWBkHfYUDTMOw1j_tnU</string>
 </resources>

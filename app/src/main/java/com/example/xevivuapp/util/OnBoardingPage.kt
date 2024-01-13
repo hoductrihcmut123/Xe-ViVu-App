@@ -24,6 +24,6 @@ sealed class OnBoardingPage(
     object Third : OnBoardingPage(
         image = R.drawable.onboarding_third,
         title = "Điểm đến linh hoạt",
-        description = "Dễ dàng chọn địa điểm với hệ thống đồ chi tiết"
+        description = "Dễ dàng chọn địa điểm với hệ thống bản đồ chi tiết"
     )
 }
