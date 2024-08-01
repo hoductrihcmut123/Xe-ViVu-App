@@ -48,6 +48,9 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    apply {
+        from("auto-dimensions.gradle")
+    }
 }
 
 dependencies {
@@ -104,4 +107,8 @@ dependencies {
     // Google Maps
     implementation "com.google.android.gms:play-services-maps:18.2.0"
     implementation "com.google.android.libraries.places:places:3.3.0"
+
+    // ssp, sdp compose
+    implementation "com.intuit.ssp:ssp-android:1.0.6"
+    implementation "com.intuit.sdp:sdp-android:1.1.0"
 }

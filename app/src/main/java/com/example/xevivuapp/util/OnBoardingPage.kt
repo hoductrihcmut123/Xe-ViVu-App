@@ -1,29 +1,38 @@
 package com.example.xevivuapp.util
 
+import android.content.Context
 import androidx.annotation.DrawableRes
 import com.example.xevivuapp.R
 
 sealed class OnBoardingPage(
     @DrawableRes
     val image: Int,
-    val title: String,
-    val description: String
+    val title: Int,
+    val description: Int
 ) {
     object First : OnBoardingPage(
         image = R.drawable.onboarding_first,
-        title = "Đặt xe mọi lúc",
-        description = "Bạn có thể đặt xe bất cứ khi nào cần, giao diện thân thiện đặt xe trong tích tắc !"
+        title = R.string.Title1,
+        description = R.string.Description1
     )
 
     object Second : OnBoardingPage(
         image = R.drawable.onboarding_second,
-        title = "Tài xế mọi nơi",
-        description = "Với lực lượng tài xế trải dài từ nông thôn đến thành thị, sẵn sàng phục vụ bạn !"
+        title = R.string.Title2,
+        description = R.string.Description2
     )
 
     object Third : OnBoardingPage(
         image = R.drawable.onboarding_third,
-        title = "Điểm đến linh hoạt",
-        description = "Dễ dàng chọn địa điểm với hệ thống bản đồ chi tiết"
+        title = R.string.Title3,
+        description = R.string.Description3
     )
+
+    fun getTitle(context: Context): String {
+        return context.getString(title)
+    }
+
+    fun getDescription(context: Context): String {
+        return context.getString(description)
+    }
 }

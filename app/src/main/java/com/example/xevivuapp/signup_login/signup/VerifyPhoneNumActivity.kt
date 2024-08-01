@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.example.xevivuapp.R
 import com.example.xevivuapp.data.PassengerData
@@ -54,8 +55,7 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
         binding.backButton.setOnClickListener {
             onBackPressed()
         }
-        binding.guideContent.text =
-            "Một mã xác minh đã được gửi đến $signupPhoneNumber qua tin nhắn SMS"
+        binding.guideContent.text = getString(R.string.VerificationMessage, signupPhoneNumber)
 
         val resendCode = binding.resendCode
         object : CountDownTimer(59000, 1000) {
@@ -67,19 +67,19 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                         R.color.button_background
                     )
                 )
-                resendCode.text = "Vui lòng nhập mã (0:" + millisUntilFinished / 1000 + ")"
+                resendCode.text = getString(R.string.ResendCodeMessage, millisUntilFinished / 1000)
                 resendCode.underline()
             }
 
             // Callback function, fired when the time is up
             override fun onFinish() {
-                resendCode.text = "Gửi lại mã"
+                resendCode.text = getString(R.string.ResendCode)
                 var index = 1
                 resendCode.setOnClickListener {
                     if (index > 0) {
                         index -= 1
                         Toast.makeText(
-                            this@VerifyPhoneNumActivity, "Đã gửi lại OTP",
+                            this@VerifyPhoneNumActivity, getString(R.string.OTPResent),
                             Toast.LENGTH_SHORT
                         ).show()
 
@@ -117,7 +117,7 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                     )
                 }
             } else {
-                Toast.makeText(this, "Vui lòng nhập OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.PleaseEnterOTP), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -155,15 +155,12 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                                 databaseReference.child(userid!!).setValue(passengerData)
                                 Toast.makeText(
                                     this@VerifyPhoneNumActivity,
-                                    "Xác minh và Đăng ký tài khoản thành công!",
+                                    getString(R.string.VerificationRegistrationSuccessful),
                                     Toast.LENGTH_LONG
                                 ).show()
-                                startActivity(
-                                    Intent(
-                                        this@VerifyPhoneNumActivity,
-                                        PermissionActivity::class.java
-                                    )
-                                )
+                                val intent = Intent(this@VerifyPhoneNumActivity, PermissionActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                startActivity(intent)
                                 finish()
                             }
 
@@ -176,16 +173,13 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                             }
                         })
 
-                    startActivity(
-                        Intent(
-                            this@VerifyPhoneNumActivity,
-                            PermissionActivity::class.java
-                        )
-                    )
+                    val intent = Intent(this@VerifyPhoneNumActivity, PermissionActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
                     finish()
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(this, "OTP không hợp lệ!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.InvalidOTP), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -195,4 +189,15 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
         paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.ExitTheApp))
+            .setMessage(getString(R.string.AreYouExit))
+            .setNegativeButton(getString(R.string.Exit)) { _, _ ->
+                super.onBackPressed() // Call the default back button action
+            }
+            .setPositiveButton(getString(R.string.Return), null)
+            .show()
+    }
 }

@@ -1,9 +1,12 @@
 package com.example.xevivuapp
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.animation.ExperimentalAnimationApi
 import com.example.xevivuapp.databinding.ActivityHomeBinding
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -43,7 +46,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.ADDRESS, Place.Field.LAT_LNG))
         autocompleteFragment.setOnPlaceSelectedListener(object :PlaceSelectionListener{
             override fun onError(p0: Status) {
-                Toast.makeText(this@HomeActivity,"Có lỗi xảy ra khi tìm kiếm", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@HomeActivity,getString(R.string.ErrorWhileSearching), Toast.LENGTH_SHORT).show()
             }
 
             override fun onPlaceSelected(place: Place) {
@@ -51,8 +54,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 val id = place.id
                 val latLng = place.latLng!!
                 val marker = addMarker(latLng)
-                marker.title = add
-                marker.snippet = id
+                if (marker != null) {
+                    marker.title = add
+                }
+                if (marker != null) {
+                    marker.snippet = id
+                }
                 zoomOnMap(latLng)
             }
         })
@@ -92,18 +99,40 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun addMarker(position: LatLng): Marker {
-        val marker = mGoogleMap?.addMarker(MarkerOptions()
-            .position(position)
-            .title("Custom Marker")
-            .draggable(true)
-            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon)))    // Custom Marker
-        return marker!!
+    private fun addMarker(position: LatLng): Marker? {
+        return mGoogleMap?.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title("Custom Marker")
+                .draggable(true)
+                .icon(
+                    BitmapDescriptorFactory.fromBitmap(
+                        Bitmap.createScaledBitmap(
+                            BitmapFactory.decodeResource(resources, R.drawable.marker_icon),
+                            150,
+                            150,
+                            false
+                        )
+                    )
+                )
+        )
     }
 
     private fun zoomOnMap(latLng: LatLng){
         val newLatLngZoom = CameraUpdateFactory.newLatLngZoom(latLng, 16f)
         mGoogleMap?.animateCamera(newLatLngZoom)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.ExitTheApp))
+            .setMessage(getString(R.string.AreYouExit))
+            .setNegativeButton(getString(R.string.Exit)) { _, _ ->
+                super.onBackPressed() // Call the default back button action
+            }
+            .setPositiveButton(getString(R.string.Return), null)
+            .show()
     }
 
     override fun onStop() {

@@ -14,14 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.xevivuapp.R
 import com.example.xevivuapp.navigation.Screen
 import com.example.xevivuapp.util.OnBoardingPage
 import com.example.xevivuapp.viewmodel.WelcomeViewModel
@@ -60,10 +61,10 @@ fun WelcomeScreen(
             pagerState = pagerState,
             activeColor = Color(17,82,253),
             inactiveColor = Color(239,239,244),
-            indicatorShape = RoundedCornerShape(20.dp),
-            indicatorWidth = 30.dp,
-            indicatorHeight = 7.dp,
-            spacing = (-5).dp
+            indicatorShape = RoundedCornerShape(20.sdp),
+            indicatorWidth = 30.sdp,
+            indicatorHeight = 7.sdp,
+            spacing = (-5).sdp
         )
         FinishButton(
             modifier = Modifier.weight(1.3f),
@@ -78,6 +79,7 @@ fun WelcomeScreen(
 
 @Composable
 fun PagerScreen(onBoardingPage: OnBoardingPage) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -94,7 +96,7 @@ fun PagerScreen(onBoardingPage: OnBoardingPage) {
         Text(
             modifier = Modifier
                 .fillMaxWidth(),
-            text = onBoardingPage.title,
+            text = onBoardingPage.getTitle(context),
             color = Color(62,73,88),
             fontSize = MaterialTheme.typography.h4.fontSize,
             fontWeight = FontWeight.Bold,
@@ -103,9 +105,9 @@ fun PagerScreen(onBoardingPage: OnBoardingPage) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 40.dp)
-                .padding(top = 20.dp),
-            text = onBoardingPage.description,
+                .padding(horizontal = 40.sdp)
+                .padding(top = 20.sdp),
+            text = onBoardingPage.getDescription(context),
             color = Color(62,73,88),
             fontSize = MaterialTheme.typography.subtitle1.fontSize,
             fontWeight = FontWeight.Medium,
@@ -124,7 +126,7 @@ fun FinishButton(
 ) {
     Row(
         modifier = modifier
-            .padding(horizontal = 80.dp),
+            .padding(horizontal = 80.sdp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -133,16 +135,16 @@ fun FinishButton(
             visible = pagerState.currentPage == 2
         ) {
             Button(
-                modifier = Modifier.height(60.dp),
+                modifier = Modifier.height(60.sdp),
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White
                 ),
-                elevation = ButtonDefaults.elevation(0.dp, 0.dp)
+                elevation = ButtonDefaults.elevation(0.sdp, 0.sdp)
             ) {
                 Text(
-                    text = "BẮT ĐẦU NÀO !",
-                    fontSize = 19.sp,
+                    text = stringResource(id = R.string.LetStart),
+                    fontSize = 19.ssp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )

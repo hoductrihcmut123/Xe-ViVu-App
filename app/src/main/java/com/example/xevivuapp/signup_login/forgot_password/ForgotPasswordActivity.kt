@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.xevivuapp.R
 import com.example.xevivuapp.signup_login.signup.SignupActivity
 import com.example.xevivuapp.databinding.ActivityForgotPasswordBinding
 import com.google.firebase.FirebaseException
@@ -53,7 +54,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 fpPassenger(fpPhoneNumber)
             } else {
                 Toast.makeText(
-                    this@ForgotPasswordActivity, "Bạn vui lòng điền Số điện thoại nhé!",
+                    this@ForgotPasswordActivity, getString(R.string.PleaseEnterYourPhoneNumber),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -72,7 +73,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                Toast.makeText(this@ForgotPasswordActivity, "Có lỗi xảy ra!", Toast.LENGTH_SHORT)
+                Toast.makeText(this@ForgotPasswordActivity, getString(R.string.AnErrorOccurred), Toast.LENGTH_SHORT)
                     .show()
             }
 
@@ -108,7 +109,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
                         PhoneAuthProvider.verifyPhoneNumber(options)
                     } else {
                         Toast.makeText(
-                            this@ForgotPasswordActivity, "Rất tiếc, Tài khoản không tồn tại!",
+                            this@ForgotPasswordActivity, getString(R.string.AccountDoesNotExist),
                             Toast.LENGTH_LONG
                         ).show()
                     }

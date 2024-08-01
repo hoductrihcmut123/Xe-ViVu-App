@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.example.xevivuapp.R
 import com.example.xevivuapp.signup_login.signup.SignupActivity
 import com.example.xevivuapp.databinding.ActivityNewPasswordBinding
 import com.example.xevivuapp.signup_login.login.LoginActivity
@@ -48,12 +49,12 @@ class NewPasswordActivity : AppCompatActivity() {
                 }
             } else if (newPassword.isNotEmpty() && verifyPassword.isNotEmpty() && newPassword != verifyPassword) {
                 Toast.makeText(
-                    this@NewPasswordActivity, "Mật khẩu nhập lại không khớp!",
+                    this@NewPasswordActivity, getString(R.string.PasswordNotMatch),
                     Toast.LENGTH_LONG
                 ).show()
             } else {
                 Toast.makeText(
-                    this@NewPasswordActivity, "Bạn vui lòng điền đầy đủ thông tin nhé!",
+                    this@NewPasswordActivity, getString(R.string.PleaseFillAllInformation),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -79,13 +80,13 @@ class NewPasswordActivity : AppCompatActivity() {
                             .addOnSuccessListener {
                                 Toast.makeText(
                                     this@NewPasswordActivity,
-                                    "Đổi mật khẩu thành công!",
+                                    getString(R.string.PasswordChangedSuccessfully),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }.addOnFailureListener {
                                 Toast.makeText(
                                     this@NewPasswordActivity,
-                                    "Rất tiếc đã có lỗi xảy ra, bạn vui lòng thử lại nhé!",
+                                    getString(R.string.SomethingWentWrong),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }

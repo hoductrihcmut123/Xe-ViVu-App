@@ -39,8 +39,7 @@ class VerifyPhoneNumFPActivity : AppCompatActivity() {
         binding.backButton.setOnClickListener {
             onBackPressed()
         }
-        binding.guideContent.text =
-            "Một mã xác minh đã được gửi đến $fpPhoneNumber qua tin nhắn SMS"
+        binding.guideContent.text = getString(R.string.VerificationMessage, fpPhoneNumber)
 
         val resendCode = binding.resendCode
         object : CountDownTimer(59000, 1000) {
@@ -52,18 +51,18 @@ class VerifyPhoneNumFPActivity : AppCompatActivity() {
                         R.color.button_background
                     )
                 )
-                resendCode.text = "Vui lòng nhập mã (0:" + millisUntilFinished / 1000 + ")"
+                resendCode.text = getString(R.string.ResendCodeMessage, millisUntilFinished / 1000)
                 resendCode.underline()
             }
             // Callback function, fired when the time is up
             override fun onFinish() {
-                resendCode.text = "Gửi lại mã"
+                resendCode.text = getString(R.string.ResendCode)
                 var index = 1
                 resendCode.setOnClickListener {
                     if (index > 0) {
                         index -= 1
                         Toast.makeText(
-                            this@VerifyPhoneNumFPActivity, "Đã gửi lại OTP",
+                            this@VerifyPhoneNumFPActivity, getString(R.string.OTPResent),
                             Toast.LENGTH_SHORT
                         ).show()
 
@@ -96,7 +95,7 @@ class VerifyPhoneNumFPActivity : AppCompatActivity() {
                     signInWithPhoneAuthCredential(credential, fpPhoneNumber)
                 }
             } else {
-                Toast.makeText(this, "Vui lòng nhập OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.PleaseEnterOTP), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -117,14 +116,14 @@ class VerifyPhoneNumFPActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Xác minh thành công!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.VerificationSuccessful), Toast.LENGTH_SHORT).show()
                     val intent = Intent(this@VerifyPhoneNumFPActivity, NewPasswordActivity::class.java)
                     intent.putExtra("fpPhoneNumber", fpPhoneNumber)
                     startActivity(intent)
                     finish()
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(this, "OTP không hợp lệ!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.InvalidOTP), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

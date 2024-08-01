@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.example.xevivuapp.R
 import com.example.xevivuapp.signup_login.permissions.PermissionActivity
 import com.example.xevivuapp.signup_login.signup.SignupActivity
 import com.example.xevivuapp.data.PassengerData
@@ -41,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
                 loginPassenger(loginPhoneNumber, loginPassword)
             } else {
                 Toast.makeText(
-                    this@LoginActivity, "Bạn vui lòng điền đầy đủ thông tin nhé!",
+                    this@LoginActivity, getString(R.string.PleaseFillAllInformation),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -63,17 +64,19 @@ class LoginActivity : AppCompatActivity() {
                             val userData = userSnapshot.getValue(PassengerData::class.java)
                             if (userData != null && userData.password == password) {
                                 Toast.makeText(
-                                    this@LoginActivity, "Chúc mừng bạn đã đăng nhập thành công!",
+                                    this@LoginActivity, getString(R.string.CongratulationSuccessfullyLogin),
                                     Toast.LENGTH_LONG
                                 ).show()
-                                startActivity(Intent(this@LoginActivity, PermissionActivity::class.java))
+                                val intent = Intent(this@LoginActivity, PermissionActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                startActivity(intent)
                                 finish()
                                 return
                             }
                         }
                     }
                     Toast.makeText(
-                        this@LoginActivity, "Sai thông tin, bạn kiểm tra lại nhé!",
+                        this@LoginActivity, getString(R.string.WrongInformation),
                         Toast.LENGTH_LONG
                     ).show()
                 }

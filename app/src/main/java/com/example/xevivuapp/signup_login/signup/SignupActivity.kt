@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.xevivuapp.HomeActivity
+import com.example.xevivuapp.R
 import com.example.xevivuapp.databinding.ActivitySignupBinding
 import com.example.xevivuapp.signup_login.login.LoginActivity
 import com.google.firebase.FirebaseException
@@ -65,7 +66,7 @@ class SignupActivity : AppCompatActivity() {
                 signupPassenger(signupPhoneNumber)
             } else {
                 Toast.makeText(
-                    this@SignupActivity, "Bạn vui lòng điền đầy đủ thông tin nhé!",
+                    this@SignupActivity, getString(R.string.PleaseFillAllInformation),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -84,7 +85,11 @@ class SignupActivity : AppCompatActivity() {
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                Toast.makeText(this@SignupActivity, "Có lỗi xảy ra!", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this@SignupActivity,
+                    getString(R.string.AnErrorOccurred),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
 
@@ -123,7 +128,7 @@ class SignupActivity : AppCompatActivity() {
                         PhoneAuthProvider.verifyPhoneNumber(options)
                     } else {
                         Toast.makeText(
-                            this@SignupActivity, "Rất tiếc, Tài khoản đã tồn tại!",
+                            this@SignupActivity, getString(R.string.AccountExists),
                             Toast.LENGTH_LONG
                         ).show()
                     }
