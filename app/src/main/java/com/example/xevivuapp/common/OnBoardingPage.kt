@@ -1,4 +1,4 @@
-package com.example.xevivuapp.util
+package com.example.xevivuapp.common
 
 import android.content.Context
 import androidx.annotation.DrawableRes

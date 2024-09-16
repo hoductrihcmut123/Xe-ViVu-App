@@ -24,7 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.xevivuapp.R
 import com.example.xevivuapp.navigation.Screen
-import com.example.xevivuapp.util.OnBoardingPage
+import com.example.xevivuapp.common.OnBoardingPage
 import com.example.xevivuapp.viewmodel.WelcomeViewModel
 import com.google.accompanist.pager.*
 

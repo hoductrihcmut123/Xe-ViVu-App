@@ -64,6 +64,8 @@
     <string name="HaveAccount">Bạn đã có tài khoản ?</string>
     <string name="VerificationCode">Mã xác minh</string>
     <string name="Verify">Xác minh</string>
+    <string name="Allow">Cho phép</string>
+    <string name="NotAllowed">Không cho phép</string>
 
 
     <string name="google_map_api_key">xxxxxxxxxxxxxxxxxxxx</string>

@@ -41,7 +41,7 @@
     <string name="Return">Return</string>
     <string name="AccountExists">Sorry, Account already exists!</string>
     <string name="VerificationRegistrationSuccessful">Account Verification and Registration Successful!</string>
-    <string name="Title1">Book your vehicle anytime</string>
+    <string name="Title1">Booking vehicle anytime</string>
     <string name="Description1">You can book a vehicle whenever you need, with a friendly interface and book a vehicle in a snap !</string>
     <string name="Title2">Drivers everywhere</string>
     <string name="Description2">With a team of drivers spanning from rural to urban areas, ready to serve you !</string>
@@ -64,6 +64,8 @@
     <string name="HaveAccount">Do you have account ?</string>
     <string name="VerificationCode">Verification code</string>
     <string name="Verify">Verify</string>
+    <string name="Allow">Allow</string>
+    <string name="NotAllowed">Not Allowed</string>
 
 
     <string name="google_map_api_key">xxxxxxxxxxxxxxxxxxxx</string>

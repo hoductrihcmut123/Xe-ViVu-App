@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.animation.ExperimentalAnimationApi
+import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
+import com.example.xevivuapp.common.utils.showLocationPermissionDialog
 import com.example.xevivuapp.databinding.ActivityHomeBinding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.common.api.Status
@@ -69,9 +71,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         binding.currentLocationButton.setOnClickListener {
-            mGoogleMap?.clear()
-            zoomOnMap(LatLng(10.772770613876723, 106.65925362724845))
-            addMarker(LatLng(10.772770613876723, 106.65925362724845))
+            if (this@HomeActivity.isCheckLocationPermission()) {
+                mGoogleMap?.clear()
+                zoomOnMap(LatLng(10.772770613876723, 106.65925362724845))
+                addMarker(LatLng(10.772770613876723, 106.65925362724845))
+            } else {
+                showLocationPermissionDialog()
+            }
         }
 
         auth= FirebaseAuth.getInstance()
