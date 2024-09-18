@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.example.xevivuapp.HomeActivity
 import com.example.xevivuapp.signup_login.login.LoginActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.signup_login.signup.SignupActivity
@@ -95,7 +96,7 @@ fun LoginAndSignUpScreen() {
                         .height(60.sdp)
                         .fillMaxWidth(),
                     onClick = {
-                        context.startActivity(Intent(context, SignupActivity::class.java))
+                        context.startActivity(Intent(context, HomeActivity::class.java))
                     },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.White

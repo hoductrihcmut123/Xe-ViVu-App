@@ -16,11 +16,14 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [ MAP_KEY:getMapKey()]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "MAP_KEY", "\"" + getMapKey() + "\""
     }
 
     buildTypes {
@@ -40,6 +43,7 @@ android {
         compose true
         viewBinding true
         dataBinding true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.0'
@@ -112,4 +116,18 @@ dependencies {
     // ssp, sdp compose
     implementation "com.intuit.ssp:ssp-android:1.0.6"
     implementation "com.intuit.sdp:sdp-android:1.1.0"
+
+    // Volley to quick call api
+    implementation "com.android.volley:volley:1.2.1"
+}
+
+def getMapKey() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+    String mapKey = properties.getProperty("map_key")
+    if (mapKey == null)
+        throw new GradleException("Add 'map_key' field at local.properties file")
+
+    return mapKey
 }
