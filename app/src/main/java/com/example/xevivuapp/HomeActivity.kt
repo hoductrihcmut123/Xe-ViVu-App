@@ -55,15 +55,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var auth: FirebaseAuth
 
-    private var mCurrentLatitude: Double = 0.0
-    private var mCurrentLongitude: Double = 0.0
-    private var mCurrentAddress: String = "123"
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
     private var originLatLng: LatLng? = null
     private var originAddress: String? = null
     private var destinationLatLng: LatLng? = null
     private var destinationAddress: String? = null
+    private var showedDirection: Boolean = false
 
     @SuppressLint("MissingPermission")
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
@@ -87,21 +85,34 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onError(p0: Status) {}
 
             override fun onPlaceSelected(place: Place) {
+                mGoogleMap?.clear()
                 val address = place.address
                 val id = place.id
                 val latLng = place.latLng!!
-                val marker = addMarker(latLng)
+                val marker = addDefaultMarker(latLng)
                 if (marker != null) {
                     marker.title = address
                 }
                 if (marker != null) {
                     marker.snippet = id
                 }
-                with(binding){
-                    title.text = getString(R.string.SelectPickUpPoint)
-                    title.isVisible = true
+
+                if (destinationLatLng == null) {
+                    destinationLatLng = latLng
+                    destinationAddress = address
+                    with(binding) {
+                        subTitle.text = getString(R.string.Destination, destinationAddress)
+                        subTitle.isVisible = true
+                        title.text = getString(R.string.SelectPickUpPoint)
+                        title.isVisible = true
+                        chooseLocationButton.isVisible = true
+                        menuButton.isVisible = false
+                        backButton.isVisible = true
+                    }
+                } else {
+                    originLatLng = latLng
+                    originAddress = address
                 }
-                mGoogleMap?.clear()
                 zoomOnMap(latLng)
             }
         })
@@ -118,23 +129,74 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 mFusedLocationClient?.lastLocation
                     ?.addOnSuccessListener { location: Location? ->
                         if (location != null) {
-                            mCurrentLatitude = location.latitude
-                            mCurrentLongitude = location.longitude
+                            originLatLng = LatLng(location.latitude, location.longitude)
                         }
-                        zoomOnMap(LatLng(mCurrentLatitude, mCurrentLongitude), 18f)
-                        addMarker(LatLng(mCurrentLatitude, mCurrentLongitude))
-                        findAddress(LatLng(mCurrentLatitude, mCurrentLongitude))
-                        direction(LatLng(mCurrentLatitude, mCurrentLongitude), LatLng(10.778787, 106.7570348))
+                        originLatLng?.let { originLatLng -> zoomOnMap(originLatLng, 18f) }
+                        originLatLng?.let { originLatLng -> addDefaultMarker(originLatLng) }
+                        originLatLng?.let { originLatLng ->
+                            findAddress(
+                                originLatLng,
+                                isCurrentLocation = true
+                            )
+                        }
                     }
             } else {
                 showLocationPermissionDialog()
             }
         }
 
+        binding.chooseLocationButton.setOnClickListener {
+            if (originLatLng != null && originAddress != null) {
+                with(binding) {
+                    subTitle.text = getString(R.string.Destination_Pickup, originAddress, destinationAddress)
+                    subTitle.isVisible = true
+                    title.text = getString(R.string.VehicleOptions)
+                    title.isVisible = true
+                    chooseLocationButton.isVisible = false
+                    currentLocationButton.isVisible = false
+                    searchView.isVisible = false
+                }
+                direction(originLatLng!!, destinationLatLng!!)
+                showedDirection = true
+            }
+        }
+
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        binding.logoutButton.setOnClickListener {
+        binding.backButton.setOnClickListener {
+            if (destinationLatLng != null && !showedDirection) {
+                with(binding) {
+                    subTitle.text = ""
+                    subTitle.isVisible = false
+                    title.text = ""
+                    title.isVisible = false
+                    chooseLocationButton.isVisible = false
+                    menuButton.isVisible = true
+                    backButton.isVisible = false
+                }
+            } else {
+                with(binding) {
+                    subTitle.text = ""
+                    subTitle.isVisible = false
+                    title.text = ""
+                    title.isVisible = false
+                    chooseLocationButton.isVisible = false
+                    currentLocationButton.isVisible = true
+                    searchView.isVisible = true
+                    menuButton.isVisible = true
+                    backButton.isVisible = false
+                    showedDirection = false
+                }
+            }
+            mGoogleMap?.clear()
+            destinationLatLng = null
+            destinationAddress = null
+            originLatLng = null
+            originAddress = null
+        }
+
+        binding.menuButton.setOnClickListener {
             if (currentUser != null) {
                 auth.signOut()
             }
@@ -151,9 +213,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style)
         )
 
-        mGoogleMap?.setOnMapLongClickListener { position ->
+        mGoogleMap?.setOnMapLongClickListener { location ->
             mGoogleMap?.clear()
-            addMarker(position)
+            originLatLng = LatLng(location.latitude, location.longitude)
+            addDefaultMarker(location)
+            findAddress(location)
         }
         mGoogleMap?.setOnMarkerClickListener { marker ->
             marker.remove()
@@ -161,18 +225,37 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun addMarker(position: LatLng): Marker? {
+    private fun addDefaultMarker(position: LatLng): Marker? {
         return mGoogleMap?.addMarker(
             MarkerOptions()
                 .position(position)
-                .title("Custom Marker")
+                .title("Custom Default Marker")
                 .draggable(true)
                 .icon(
                     BitmapDescriptorFactory.fromBitmap(
                         Bitmap.createScaledBitmap(
                             BitmapFactory.decodeResource(resources, R.drawable.marker_icon),
-                            150,
-                            150,
+                            130,
+                            130,
+                            false
+                        )
+                    )
+                )
+        )
+    }
+
+    private fun addStartedMarker(position: LatLng): Marker? {
+        return mGoogleMap?.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title("Custom Started Marker")
+                .draggable(false)
+                .icon(
+                    BitmapDescriptorFactory.fromBitmap(
+                        Bitmap.createScaledBitmap(
+                            BitmapFactory.decodeResource(resources, R.drawable.started_marker_icon),
+                            50,
+                            50,
                             false
                         )
                     )
@@ -203,10 +286,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun direction(origin: LatLng, destination: LatLng, mode: String = "driving") {
+        mGoogleMap?.clear()
         val requestQueue = Volley.newRequestQueue(this)
         val url = Uri.parse("https://maps.googleapis.com/maps/api/directions/json")
             .buildUpon()
-            .appendQueryParameter("destination", "${destination.latitude}, ${destination.longitude}")
+            .appendQueryParameter(
+                "destination",
+                "${destination.latitude}, ${destination.longitude}"
+            )
             .appendQueryParameter("origin", "${origin.latitude}, ${origin.longitude}")
             .appendQueryParameter("mode", mode)
             .appendQueryParameter("key", BuildConfig.MAP_KEY)
@@ -248,7 +335,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                                 }
                             }
                             polylineOptions.addAll(points)
-                            polylineOptions.width(20F)
+                            polylineOptions.width(15F)
                             polylineOptions.color(
                                 ContextCompat.getColor(
                                     this,
@@ -260,8 +347,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         if (polylineOptions != null) {
                             mGoogleMap?.addPolyline(polylineOptions)
                         }
-                        addMarker(origin)
-                        addMarker(destination)
+                        addStartedMarker(origin)
+                        addDefaultMarker(destination)
 
                         val bounds: LatLngBounds = LatLngBounds.builder()
                             .include(origin)
@@ -273,7 +360,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             CameraUpdateFactory.newLatLngBounds(
                                 bounds,
                                 point.x,
-                                150,
+                                325,
                                 30
                             )
                         )
@@ -295,7 +382,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         requestQueue.add(jsonObjectRequest)
     }
 
-    private fun findAddress(latLng: LatLng) {
+    private fun findAddress(latLng: LatLng, isCurrentLocation: Boolean = false) {
         val url = Uri.parse("https://maps.googleapis.com/maps/api/geocode/json")
             .buildUpon()
             .appendQueryParameter("latlng", "${latLng.latitude},${latLng.longitude}")
@@ -309,13 +396,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             { response ->
                 val results = response.getJSONArray("results")
                 if (results.length() > 0) {
-                    mCurrentAddress = results.getJSONObject(0).getString("formatted_address")
+                    originAddress = results.getJSONObject(0).getString("formatted_address")
                     with(binding) {
-                        title.text = mCurrentAddress
+                        title.text = originAddress
                         title.isVisible = true
-                        subTitle.isVisible = true
+                        if (isCurrentLocation) {
+                            subTitle.text = getString(R.string.YourLocation)
+                            subTitle.isVisible = true
+                        } else {
+                            subTitle.isVisible = false
+                        }
                     }
-                    Log.d("Geocode", "Address: $mCurrentAddress")
+                    Log.d("Geocode", "Address: $originAddress")
                 } else {
                     Log.d("Geocode", "Address not found")
                 }

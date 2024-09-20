@@ -69,4 +69,7 @@
     <string name="YourLocation">Vị trí của bạn</string>
     <string name="SelectPickUpPoint">Chọn điểm đón</string>
     <string name="SelectThisPickUpPoint">Chọn điểm đón này</string>
+    <string name="Destination">> Điểm đến: %1$s</string>
+    <string name="Destination_Pickup">> Điểm đón: %1$s\n|\n> Điểm đến: %2$s</string>
+    <string name="VehicleOptions">Tùy chọn phương tiện</string>
 </resources>

@@ -69,4 +69,7 @@
     <string name="YourLocation">Your location</string>
     <string name="SelectPickUpPoint">Select pick up point</string>
     <string name="SelectThisPickUpPoint">Select this pick up point</string>
+    <string name="Destination">> Destination: %1$s</string>
+    <string name="Destination_Pickup">> Destination: %1$s\n|\n> Pick up: %2$s</string>
+    <string name="VehicleOptions">Vehicle options</string>
 </resources>
