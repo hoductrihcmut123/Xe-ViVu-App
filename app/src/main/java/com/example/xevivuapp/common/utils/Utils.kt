@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
+import java.text.DecimalFormat
+import java.util.Locale
+import kotlin.math.roundToInt
 
 object Utils {
     fun Context.isCheckLocationPermission(): Boolean {
@@ -47,5 +50,27 @@ object Utils {
             decoded.add(LatLng(lat.toDouble() / 100000.0, lng.toDouble() / 100000.0))
         }
         return decoded
+    }
+
+    fun Double.convertMetersToKilometers(): Double {
+        return String.format(Locale.US, "%.1f", this / 1000).toDouble()
+    }
+
+    fun Int.convertSecondsToMinutes(): Int {
+        return (this / 60.0).roundToInt()
+    }
+
+    fun Double.formatCurrency(): String {
+        val decimalFormat = DecimalFormat("#,###")
+        return "${decimalFormat.format(this)} VNĐ"
+    }
+
+    fun Double.calculateMoney(vehicleType: String): Double {
+        return when (vehicleType) {
+            Constants.BIKE -> this * Constants.BIKE_RATE
+            Constants.CAR -> this * Constants.CAR_RATE
+            Constants.MVP -> this * Constants.MVP_RATE
+            else -> 0.0
+        }
     }
 }

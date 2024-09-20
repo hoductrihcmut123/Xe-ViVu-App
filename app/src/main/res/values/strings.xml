@@ -72,4 +72,13 @@
     <string name="Destination">> Điểm đến: %1$s</string>
     <string name="Destination_Pickup">> Điểm đón: %1$s\n|\n> Điểm đến: %2$s</string>
     <string name="VehicleOptions">Tùy chọn phương tiện</string>
+    <string name="Bike">Xe 2 bánh</string>
+    <string name="Car">Xe 4 chỗ</string>
+    <string name="MVP">Xe 7 chỗ</string>
+    <string name="EstimateTripTime">Thời gian chuyến xe dự tính:\u00A0</string>
+    <string name="TripTime">%1$s phút</string>
+    <string name="PaymentOptions">Tuỳ chọn thanh toán</string>
+    <string name="SelectPaymentMethod">Chọn phương thức thanh toán</string>
+    <string name="Cash">Tiền mặt</string>
+    <string name="Booking">Đặt xe</string>
 </resources>

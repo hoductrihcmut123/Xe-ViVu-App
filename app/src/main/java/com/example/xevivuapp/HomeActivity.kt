@@ -9,6 +9,8 @@ import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -19,7 +21,12 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.xevivuapp.common.utils.Constants
 import com.example.xevivuapp.common.utils.Utils
+import com.example.xevivuapp.common.utils.Utils.calculateMoney
+import com.example.xevivuapp.common.utils.Utils.convertMetersToKilometers
+import com.example.xevivuapp.common.utils.Utils.convertSecondsToMinutes
+import com.example.xevivuapp.common.utils.Utils.formatCurrency
 import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
 import com.example.xevivuapp.common.utils.showLocationPermissionDialog
 import com.example.xevivuapp.databinding.ActivityHomeBinding
@@ -42,6 +49,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import org.json.JSONArray
 import org.json.JSONException
@@ -62,6 +70,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private var destinationLatLng: LatLng? = null
     private var destinationAddress: String? = null
     private var showedDirection: Boolean = false
+    private var distance: Double = 0.0
+    private var duration: Int = 0
+
+    private var vehicleType: String? = null
+
+    private lateinit var bottomSheetVehicleType: BottomSheetBehavior<View>
+
+    private val mapLongClickListener = GoogleMap.OnMapLongClickListener { location ->
+        mGoogleMap?.clear()
+        originLatLng = LatLng(location.latitude, location.longitude)
+        addDefaultMarker(location)
+        findAddress(location)
+    }
+
+    private val markerClickListener = GoogleMap.OnMarkerClickListener { marker ->
+        marker.remove()
+        false
+    }
 
     @SuppressLint("MissingPermission")
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
@@ -123,6 +149,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mFusedLocationClient = this.let { LocationServices.getFusedLocationProviderClient(it) }
 
+        // Set up bottomSheetVehicleType
+        bottomSheetVehicleType = BottomSheetBehavior.from(findViewById(R.id.bottomSheetVehicleType))
+        bottomSheetVehicleType.peekHeight = 0
+        bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetVehicleType.isDraggable = false
+
         binding.currentLocationButton.setOnClickListener {
             if (this@HomeActivity.isCheckLocationPermission()) {
                 mGoogleMap?.clear()
@@ -148,7 +180,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.chooseLocationButton.setOnClickListener {
             if (originLatLng != null && originAddress != null) {
                 with(binding) {
-                    subTitle.text = getString(R.string.Destination_Pickup, originAddress, destinationAddress)
+                    subTitle.text =
+                        getString(R.string.Destination_Pickup, originAddress, destinationAddress)
                     subTitle.isVisible = true
                     title.text = getString(R.string.VehicleOptions)
                     title.isVisible = true
@@ -158,6 +191,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 direction(originLatLng!!, destinationLatLng!!)
                 showedDirection = true
+                mGoogleMap?.setOnMapLongClickListener(null)
+                mGoogleMap?.setOnMarkerClickListener(null)
+                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
 
@@ -186,14 +222,20 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     searchView.isVisible = true
                     menuButton.isVisible = true
                     backButton.isVisible = false
-                    showedDirection = false
                 }
+                showedDirection = false
+                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+                mGoogleMap?.setOnMapLongClickListener(mapLongClickListener)
+                mGoogleMap?.setOnMarkerClickListener(markerClickListener)
             }
             mGoogleMap?.clear()
             destinationLatLng = null
             destinationAddress = null
             originLatLng = null
             originAddress = null
+            distance = 0.0
+            duration = 0
+            vehicleType = null
         }
 
         binding.menuButton.setOnClickListener {
@@ -202,6 +244,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             startActivity(Intent(this, MainActivity::class.java))
             finish()
+        }
+
+        with(binding.bottomSheetVehicleType){
+            cardBike.setOnClickListener {
+                vehicleType = Constants.BIKE
+                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+            }
+            cardCar.setOnClickListener {
+                vehicleType = Constants.CAR
+                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+            }
+            cardMvp.setOnClickListener {
+                vehicleType = Constants.MVP
+                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -212,17 +272,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         mGoogleMap!!.setMapStyle(
             MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style)
         )
-
-        mGoogleMap?.setOnMapLongClickListener { location ->
-            mGoogleMap?.clear()
-            originLatLng = LatLng(location.latitude, location.longitude)
-            addDefaultMarker(location)
-            findAddress(location)
-        }
-        mGoogleMap?.setOnMarkerClickListener { marker ->
-            marker.remove()
-            false
-        }
+        mGoogleMap?.setOnMapLongClickListener(mapLongClickListener)
+        mGoogleMap?.setOnMarkerClickListener(markerClickListener)
     }
 
     private fun addDefaultMarker(position: LatLng): Marker? {
@@ -321,6 +372,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             val legs: JSONArray = routes.getJSONObject(i).getJSONArray("legs")
 
                             for (j in 0 until legs.length()) {
+                                distance = legs.getJSONObject(j).getJSONObject("distance")
+                                    .getString("value").toDouble()
+                                duration = legs.getJSONObject(j).getJSONObject("duration")
+                                    .getString("value").toInt()
+                                setVehicleTypeValue()
+
                                 val steps: JSONArray = legs.getJSONObject(j).getJSONArray("steps")
 
                                 for (k in 0 until steps.length()) {
@@ -356,12 +413,13 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             .build()
                         val point = Point()
                         windowManager.defaultDisplay.getSize(point)
+                        mGoogleMap?.setPadding(60, 0, 60, 600)
                         mGoogleMap?.animateCamera(
                             CameraUpdateFactory.newLatLngBounds(
                                 bounds,
                                 point.x,
-                                325,
-                                30
+                                200,
+                                60
                             )
                         )
                     }
@@ -419,5 +477,16 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         )
         val requestQueue = Volley.newRequestQueue(this)
         requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun setVehicleTypeValue() {
+        binding.bottomSheetVehicleType.moneyBike.text =
+            distance.convertMetersToKilometers().calculateMoney(Constants.BIKE).formatCurrency()
+        binding.bottomSheetVehicleType.moneyCar.text =
+            distance.convertMetersToKilometers().calculateMoney(Constants.CAR).formatCurrency()
+        binding.bottomSheetVehicleType.moneyMvp.text =
+            distance.convertMetersToKilometers().calculateMoney(Constants.MVP).formatCurrency()
+        binding.bottomSheetVehicleType.TvEstimateTime.text =
+            getString(R.string.TripTime, duration.convertSecondsToMinutes().toString())
     }
 }
