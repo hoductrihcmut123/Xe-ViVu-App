@@ -1,11 +1,15 @@
 package com.example.xevivuapp.common.utils
 
 import android.Manifest
+import android.animation.ValueAnimator
+import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -72,5 +76,21 @@ object Utils {
             Constants.MVP -> this * Constants.MVP_RATE
             else -> 0.0
         }
+    }
+
+    fun getCurrentTimeFormatted(): String {
+        val currentTime = Date()
+        val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return dateFormat.format(currentTime)
+    }
+
+    fun valueAnimate(duration: Int, listener: AnimatorUpdateListener?): ValueAnimator? {
+        val valueAnimate = ValueAnimator.ofFloat(0f, 200f)
+        valueAnimate.duration = duration.toLong()
+        valueAnimate.addUpdateListener(listener)
+        valueAnimate.repeatCount = ValueAnimator.INFINITE
+        valueAnimate.repeatMode = ValueAnimator.RESTART
+        valueAnimate.start()
+        return valueAnimate
     }
 }

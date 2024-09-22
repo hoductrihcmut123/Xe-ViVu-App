@@ -9,4 +9,8 @@ object Constants {
     const val CAR = "CAR"
     const val MVP = "MVP"
     const val CASH = "CASH"
+    const val MOMO = "MOMO"
+    const val DESIRED_NUM_OF_SPINS = 15
+    const val DESIRED_SECOND_PER_ONE_FULL_360_SPIN = 40
+    const val EFFECT_DURATION = 1000
 }

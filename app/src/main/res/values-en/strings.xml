@@ -80,5 +80,7 @@
     <string name="PaymentOptions">Payment options</string>
     <string name="SelectPaymentMethod">Select payment method</string>
     <string name="Cash">Cash</string>
+    <string name="Momo">Momo</string>
     <string name="Booking">Booking</string>
+    <string name="CancelBooking">Cancel booking</string>
 </resources>

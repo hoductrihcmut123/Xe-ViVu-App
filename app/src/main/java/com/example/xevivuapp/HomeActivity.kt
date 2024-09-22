@@ -1,16 +1,18 @@
 package com.example.xevivuapp
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Point
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,11 +24,15 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.xevivuapp.common.utils.Constants
+import com.example.xevivuapp.common.utils.Constants.DESIRED_NUM_OF_SPINS
+import com.example.xevivuapp.common.utils.Constants.DESIRED_SECOND_PER_ONE_FULL_360_SPIN
+import com.example.xevivuapp.common.utils.Constants.EFFECT_DURATION
 import com.example.xevivuapp.common.utils.Utils
 import com.example.xevivuapp.common.utils.Utils.calculateMoney
 import com.example.xevivuapp.common.utils.Utils.convertMetersToKilometers
 import com.example.xevivuapp.common.utils.Utils.convertSecondsToMinutes
 import com.example.xevivuapp.common.utils.Utils.formatCurrency
+import com.example.xevivuapp.common.utils.Utils.getCurrentTimeFormatted
 import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
 import com.example.xevivuapp.common.utils.showLocationPermissionDialog
 import com.example.xevivuapp.databinding.ActivityHomeBinding
@@ -39,6 +45,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -55,7 +64,6 @@ import org.json.JSONArray
 import org.json.JSONException
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
-
     private var mGoogleMap: GoogleMap? = null
 
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
@@ -74,8 +82,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private var duration: Int = 0
 
     private var vehicleType: String? = null
+    private var paymentType: String? = null
 
     private lateinit var bottomSheetVehicleType: BottomSheetBehavior<View>
+    private lateinit var bottomSheetPaymentType: BottomSheetBehavior<View>
+    private lateinit var bottomSheetBookingInfo: BottomSheetBehavior<View>
+
+    // Effect
+    private var lastUserCircle: Circle? = null
+    private var lastPulseAnimator: ValueAnimator? = null
+
+    // Spinning animation
+    private var animator: ValueAnimator? = null
 
     private val mapLongClickListener = GoogleMap.OnMapLongClickListener { location ->
         mGoogleMap?.clear()
@@ -155,6 +173,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetVehicleType.isDraggable = false
 
+        // Set up bottomSheetPaymentType
+        bottomSheetPaymentType = BottomSheetBehavior.from(findViewById(R.id.bottomSheetPaymentType))
+        bottomSheetPaymentType.peekHeight = 0
+        bottomSheetPaymentType.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetPaymentType.isDraggable = false
+
+        // Set up bottomSheetBookingInfo
+        bottomSheetBookingInfo = BottomSheetBehavior.from(findViewById(R.id.bottomSheetBookingInfo))
+        bottomSheetBookingInfo.peekHeight = 0
+        bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBookingInfo.isDraggable = false
+
         binding.currentLocationButton.setOnClickListener {
             if (this@HomeActivity.isCheckLocationPermission()) {
                 mGoogleMap?.clear()
@@ -201,41 +231,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val currentUser = auth.currentUser
 
         binding.backButton.setOnClickListener {
-            if (destinationLatLng != null && !showedDirection) {
-                with(binding) {
-                    subTitle.text = ""
-                    subTitle.isVisible = false
-                    title.text = ""
-                    title.isVisible = false
-                    chooseLocationButton.isVisible = false
-                    menuButton.isVisible = true
-                    backButton.isVisible = false
-                }
-            } else {
-                with(binding) {
-                    subTitle.text = ""
-                    subTitle.isVisible = false
-                    title.text = ""
-                    title.isVisible = false
-                    chooseLocationButton.isVisible = false
-                    currentLocationButton.isVisible = true
-                    searchView.isVisible = true
-                    menuButton.isVisible = true
-                    backButton.isVisible = false
-                }
-                showedDirection = false
-                bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
-                mGoogleMap?.setOnMapLongClickListener(mapLongClickListener)
-                mGoogleMap?.setOnMarkerClickListener(markerClickListener)
-            }
-            mGoogleMap?.clear()
-            destinationLatLng = null
-            destinationAddress = null
-            originLatLng = null
-            originAddress = null
-            distance = 0.0
-            duration = 0
-            vehicleType = null
+            resetValue()
         }
 
         binding.menuButton.setOnClickListener {
@@ -246,21 +242,70 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             finish()
         }
 
-        with(binding.bottomSheetVehicleType){
+        with(binding.bottomSheetVehicleType) {
             cardBike.setOnClickListener {
                 vehicleType = Constants.BIKE
                 bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
-                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+                binding.title.text = getString(R.string.PaymentOptions)
+                bottomSheetPaymentType.state = BottomSheetBehavior.STATE_EXPANDED
             }
             cardCar.setOnClickListener {
                 vehicleType = Constants.CAR
                 bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
-                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+                binding.title.text = getString(R.string.PaymentOptions)
+                bottomSheetPaymentType.state = BottomSheetBehavior.STATE_EXPANDED
             }
             cardMvp.setOnClickListener {
                 vehicleType = Constants.MVP
                 bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
-                Toast.makeText(this@HomeActivity, vehicleType, Toast.LENGTH_SHORT).show()
+                binding.title.text = getString(R.string.PaymentOptions)
+                bottomSheetPaymentType.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        with(binding.bottomSheetPaymentType) {
+            cardCash.setOnClickListener {
+                paymentType = Constants.CASH
+                cardCash.cardElevation = 12f
+                cardMomo.cardElevation = 0f
+            }
+            cardMomo.setOnClickListener {
+                paymentType = Constants.MOMO
+                cardMomo.elevation = 12f
+                cardCash.elevation = 0f
+            }
+            bookingButton.setOnClickListener {
+                if (paymentType != null) {
+                    setUpUIWhenBooking()
+
+                    mGoogleMap?.clear()
+                    // Tilt
+                    val cameraPos = CameraPosition.Builder().target(originLatLng!!)
+                        .tilt(45f)
+                        .zoom(16f)
+                        .build()
+                    mGoogleMap?.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPos))
+
+                    // Start animation
+                    addMarkerWithPulseAnimation()
+                }
+            }
+        }
+
+        with(binding.bottomSheetBookingInfo) {
+            cancelButton.setOnClickListener {
+                resetValue()
+                bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
+
+                animator?.cancel()
+                mGoogleMap?.moveCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.Builder().target(mGoogleMap?.cameraPosition!!.target)
+                            .tilt(0f)
+                            .zoom(14f)
+                            .build()
+                    )
+                )
             }
         }
     }
@@ -281,7 +326,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             MarkerOptions()
                 .position(position)
                 .title("Custom Default Marker")
-                .draggable(true)
+                .draggable(false)
                 .icon(
                     BitmapDescriptorFactory.fromBitmap(
                         Bitmap.createScaledBitmap(
@@ -319,6 +364,62 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         mGoogleMap?.animateCamera(newLatLngZoom)
     }
 
+    private fun addMarkerWithPulseAnimation() {
+        originLatLng?.let { addDefaultMarker(it) }
+        addPulsatingEffect(originLatLng)
+    }
+
+    private fun addPulsatingEffect(originLatLng: LatLng?) {
+        lastPulseAnimator?.cancel()
+        if (lastUserCircle != null) {
+            lastUserCircle?.remove()
+            lastUserCircle = null
+        }
+
+        lastPulseAnimator = Utils.valueAnimate(EFFECT_DURATION) { p0 ->
+            val animatedRadius = p0.animatedValue.toString().toDouble()
+            if (lastUserCircle == null) {
+                lastUserCircle = mGoogleMap!!.addCircle(
+                    CircleOptions()
+                        .center(originLatLng!!)
+                        .radius(animatedRadius)
+                        .strokeColor(Color.WHITE)
+                        .fillColor(ContextCompat.getColor(this@HomeActivity, R.color.blue_200))
+                )
+            } else {
+                lastUserCircle!!.radius = animatedRadius
+            }
+        }
+
+        // Start rotating camera
+        startMapCameraSpinningAnimation(mGoogleMap?.cameraPosition?.target)
+    }
+
+    private fun startMapCameraSpinningAnimation(target: LatLng?) {
+        animator?.cancel()
+        animator = ValueAnimator.ofFloat(0f, (DESIRED_NUM_OF_SPINS * 360).toFloat())
+        animator?.duration =
+            (DESIRED_NUM_OF_SPINS * DESIRED_SECOND_PER_ONE_FULL_360_SPIN * 1000).toLong()
+        animator?.repeatCount = ValueAnimator.INFINITE
+        animator?.repeatMode = ValueAnimator.RESTART
+        animator?.interpolator = LinearInterpolator()
+        animator?.startDelay = 100
+        animator?.addUpdateListener { valueAnimator ->
+            val newBearingValue = valueAnimator.animatedValue as Float
+            mGoogleMap?.moveCamera(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.Builder()
+                        .target(target!!)
+                        .zoom(16f)
+                        .tilt(45f)
+                        .bearing(newBearingValue)
+                        .build()
+                )
+            )
+        }
+        animator?.start()
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         AlertDialog.Builder(this)
@@ -334,6 +435,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         auth.signOut()
+    }
+
+    override fun onDestroy() {
+        animator?.end()
+        super.onDestroy()
     }
 
     private fun direction(origin: LatLng, destination: LatLng, mode: String = "driving") {
@@ -488,5 +594,71 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             distance.convertMetersToKilometers().calculateMoney(Constants.MVP).formatCurrency()
         binding.bottomSheetVehicleType.TvEstimateTime.text =
             getString(R.string.TripTime, duration.convertSecondsToMinutes().toString())
+    }
+
+    private fun resetValue() {
+        if (destinationLatLng != null && !showedDirection) {
+            with(binding) {
+                subTitle.text = ""
+                subTitle.isVisible = false
+                title.text = ""
+                title.isVisible = false
+                chooseLocationButton.isVisible = false
+                menuButton.isVisible = true
+                backButton.isVisible = false
+            }
+        } else {
+            with(binding) {
+                subTitle.text = ""
+                subTitle.isVisible = false
+                title.text = ""
+                title.isVisible = false
+                chooseLocationButton.isVisible = false
+                currentLocationButton.isVisible = true
+                searchView.isVisible = true
+                menuButton.isVisible = true
+                backButton.isVisible = false
+                bottomSheetPaymentType.cardMomo.elevation = 1f
+                bottomSheetPaymentType.cardCash.elevation = 1f
+            }
+            showedDirection = false
+            bottomSheetVehicleType.state = BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheetPaymentType.state = BottomSheetBehavior.STATE_COLLAPSED
+            mGoogleMap?.setOnMapLongClickListener(mapLongClickListener)
+            mGoogleMap?.setOnMarkerClickListener(markerClickListener)
+            mGoogleMap?.setPadding(0, 0, 60, 0)
+        }
+        mGoogleMap?.clear()
+        destinationLatLng = null
+        destinationAddress = null
+        originLatLng = null
+        originAddress = null
+        distance = 0.0
+        duration = 0
+        vehicleType = null
+        paymentType = null
+    }
+
+    private fun setUpUIWhenBooking() {
+        with(binding) {
+            bottomSheetPaymentType.cardMomo.elevation = 1f
+            bottomSheetPaymentType.cardCash.elevation = 1f
+            this@HomeActivity.bottomSheetPaymentType.state = BottomSheetBehavior.STATE_COLLAPSED
+
+            title.isVisible = false
+            subTitle.isVisible = false
+            backButton.isVisible = false
+
+            this@HomeActivity.bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_EXPANDED
+            with(bottomSheetBookingInfo) {
+                tvTimeBooking.text = getCurrentTimeFormatted()
+                tvOriginAddress.text = originAddress
+                tvDestinationAddress.text = destinationAddress
+                when (paymentType) {
+                    Constants.CASH -> tvPaymentType.text = getString(R.string.Cash)
+                    Constants.MOMO -> tvPaymentType.text = getString(R.string.Momo)
+                }
+            }
+        }
     }
 }

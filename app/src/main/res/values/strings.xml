@@ -80,5 +80,7 @@
     <string name="PaymentOptions">Tuỳ chọn thanh toán</string>
     <string name="SelectPaymentMethod">Chọn phương thức thanh toán</string>
     <string name="Cash">Tiền mặt</string>
+    <string name="Momo">Momo</string>
     <string name="Booking">Đặt xe</string>
+    <string name="CancelBooking">Hủy đặt xe</string>
 </resources>
