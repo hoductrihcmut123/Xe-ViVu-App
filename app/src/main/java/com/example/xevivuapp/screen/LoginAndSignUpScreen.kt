@@ -96,7 +96,7 @@ fun LoginAndSignUpScreen() {
                         .height(60.sdp)
                         .fillMaxWidth(),
                     onClick = {
-                        context.startActivity(Intent(context, HomeActivity::class.java))
+                        context.startActivity(Intent(context, SignupActivity::class.java))
                     },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.White

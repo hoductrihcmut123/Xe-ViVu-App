@@ -9,17 +9,14 @@ import com.example.xevivuapp.signup_login.signup.SignupActivity
 import com.example.xevivuapp.databinding.ActivityNewPasswordBinding
 import com.example.xevivuapp.signup_login.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 
 class NewPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNewPasswordBinding
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var databaseReference: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var passengersCollection: CollectionReference
 
     private lateinit var auth: FirebaseAuth
 
@@ -28,8 +25,8 @@ class NewPasswordActivity : AppCompatActivity() {
         binding = ActivityNewPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDatabase = FirebaseDatabase.getInstance()
-        databaseReference = firebaseDatabase.reference.child("Passengers")
+        firestore = FirebaseFirestore.getInstance()
+        passengersCollection = firestore.collection("Passengers")
 
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
@@ -70,42 +67,43 @@ class NewPasswordActivity : AppCompatActivity() {
     }
 
     private fun changePassword(phoneNumber: String, password: String) {
-        databaseReference.orderByChild("mobile_No")
-            .equalTo(phoneNumber)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    for (userSnapshot in dataSnapshot.children) {
-                        val passengerData = mapOf("password" to password)
-                        databaseReference.child("${userSnapshot.key}").updateChildren(passengerData)
-                            .addOnSuccessListener {
-                                Toast.makeText(
-                                    this@NewPasswordActivity,
-                                    getString(R.string.PasswordChangedSuccessfully),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }.addOnFailureListener {
-                                Toast.makeText(
-                                    this@NewPasswordActivity,
-                                    getString(R.string.SomethingWentWrong),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        startActivity(
-                            Intent(
+        passengersCollection
+            .whereEqualTo("mobile_No", phoneNumber)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val passengerData = mapOf("password" to password)
+                    passengersCollection.document(document.id).update(passengerData)
+                        .addOnSuccessListener {
+                            Toast.makeText(
                                 this@NewPasswordActivity,
-                                LoginActivity::class.java
-                            )
+                                getString(R.string.PasswordChangedSuccessfully),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                this@NewPasswordActivity,
+                                getString(R.string.SomethingWentWrong),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    startActivity(
+                        Intent(
+                            this@NewPasswordActivity,
+                            LoginActivity::class.java
                         )
-                        finish()
-                    }
+                    )
+                    finish()
                 }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    Toast.makeText(
-                        this@NewPasswordActivity, "Database Error: ${databaseError.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@NewPasswordActivity,
+                    "Error: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
+
 }

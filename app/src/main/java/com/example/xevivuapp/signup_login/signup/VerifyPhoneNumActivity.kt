@@ -19,18 +19,15 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
 
 class VerifyPhoneNumActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVerifyPhonenumBinding
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var databaseReference: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var passengersCollection: CollectionReference
 
     private lateinit var auth: FirebaseAuth
 
@@ -39,8 +36,8 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
         binding = ActivityVerifyPhonenumBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDatabase = FirebaseDatabase.getInstance()
-        databaseReference = firebaseDatabase.reference.child("Passengers")
+        firestore = FirebaseFirestore.getInstance()
+        passengersCollection = firestore.collection("Passengers")
 
         auth = FirebaseAuth.getInstance()
         lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
@@ -142,36 +139,37 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    databaseReference.orderByChild("mobile_No")
-                        .equalTo(signupPhoneNumber)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                val userid = databaseReference.push().key
-                                val passengerData = PassengerData(
-                                    user_ID = userid,
-                                    lastname = signupLastname, firstname = signupFirstname,
-                                    mobile_No = signupPhoneNumber, password = signupPassword
-                                )
-                                databaseReference.child(userid!!).setValue(passengerData)
-                                Toast.makeText(
-                                    this@VerifyPhoneNumActivity,
-                                    getString(R.string.VerificationRegistrationSuccessful),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                val intent = Intent(this@VerifyPhoneNumActivity, PermissionActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                startActivity(intent)
-                                finish()
-                            }
-
-                            override fun onCancelled(databaseError: DatabaseError) {
-                                Toast.makeText(
-                                    this@VerifyPhoneNumActivity,
-                                    "Database Error: ${databaseError.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        })
+                    val userid = passengersCollection.document().id
+                    val passengerData = PassengerData(
+                        user_ID = userid,
+                        lastname = signupLastname,
+                        firstname = signupFirstname,
+                        mobile_No = signupPhoneNumber,
+                        password = signupPassword,
+                        point = 0
+                    )
+                    passengersCollection.document(userid).set(passengerData)
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this@VerifyPhoneNumActivity,
+                                getString(R.string.VerificationRegistrationSuccessful),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            val intent = Intent(
+                                this@VerifyPhoneNumActivity,
+                                PermissionActivity::class.java
+                            )
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            startActivity(intent)
+                            finish()
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(
+                                this@VerifyPhoneNumActivity,
+                                "Database Error: ${exception.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
                     val intent = Intent(this@VerifyPhoneNumActivity, PermissionActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -179,7 +177,8 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                     finish()
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(this, getString(R.string.InvalidOTP), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.InvalidOTP), Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }

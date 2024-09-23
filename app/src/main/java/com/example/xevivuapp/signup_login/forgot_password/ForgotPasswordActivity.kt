@@ -13,18 +13,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityForgotPasswordBinding
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var databaseReference: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var passengersCollection: CollectionReference
 
     private lateinit var auth: FirebaseAuth
     lateinit var storedVerificationId: String
@@ -38,8 +35,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
         binding = ActivityForgotPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDatabase = FirebaseDatabase.getInstance()
-        databaseReference = firebaseDatabase.reference.child("Passengers")
+        firestore = FirebaseFirestore.getInstance()
+        passengersCollection = firestore.collection("Passengers")
         auth = FirebaseAuth.getInstance()
 
         binding.backButton.setOnClickListener {
@@ -73,7 +70,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                Toast.makeText(this@ForgotPasswordActivity, getString(R.string.AnErrorOccurred), Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this@ForgotPasswordActivity,
+                    getString(R.string.AnErrorOccurred),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
 
@@ -85,7 +86,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 storedVerificationId = verificationId
                 resendToken = token
 
-                val intent = Intent(this@ForgotPasswordActivity, VerifyPhoneNumFPActivity::class.java)
+                val intent =
+                    Intent(this@ForgotPasswordActivity, VerifyPhoneNumFPActivity::class.java)
                 intent.putExtra("storedVerificationId", storedVerificationId)
                 intent.putExtra("fpPhoneNumber", fpPhoneNumber)
                 startActivity(intent)
@@ -94,33 +96,30 @@ class ForgotPasswordActivity : AppCompatActivity() {
     }
 
     private fun fpPassenger(phoneNumber: String) {
-        databaseReference.orderByChild("mobile_No")
-            .equalTo(phoneNumber)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        val number = "+84$phoneNumber"
-                        val options = PhoneAuthOptions.newBuilder(auth)
-                            .setPhoneNumber(number) // Phone number to verify
-                            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                            .setActivity(this@ForgotPasswordActivity) // Activity (for callback binding)
-                            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
-                            .build()
-                        PhoneAuthProvider.verifyPhoneNumber(options)
-                    } else {
-                        Toast.makeText(
-                            this@ForgotPasswordActivity, getString(R.string.AccountDoesNotExist),
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
+        passengersCollection.whereEqualTo("mobile_No", phoneNumber)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val number = "+84$phoneNumber"
+                    val options = PhoneAuthOptions.newBuilder(auth)
+                        .setPhoneNumber(number) // Phone number to verify
+                        .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                        .setActivity(this@ForgotPasswordActivity) // Activity (for callback binding)
+                        .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+                        .build()
+                    PhoneAuthProvider.verifyPhoneNumber(options)
+                } else {
                     Toast.makeText(
-                        this@ForgotPasswordActivity, "Database Error: ${databaseError.message}",
-                        Toast.LENGTH_SHORT
+                        this@ForgotPasswordActivity, getString(R.string.AccountDoesNotExist),
+                        Toast.LENGTH_LONG
                     ).show()
                 }
-            })
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@ForgotPasswordActivity, "Database Error: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 }

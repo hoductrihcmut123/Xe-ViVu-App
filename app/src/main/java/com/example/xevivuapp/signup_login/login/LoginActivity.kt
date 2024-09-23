@@ -10,25 +10,22 @@ import com.example.xevivuapp.signup_login.signup.SignupActivity
 import com.example.xevivuapp.data.PassengerData
 import com.example.xevivuapp.databinding.ActivityLoginBinding
 import com.example.xevivuapp.signup_login.forgot_password.ForgotPasswordActivity
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var databaseReference: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var passengersCollection: CollectionReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseDatabase = FirebaseDatabase.getInstance()
-        databaseReference = firebaseDatabase.reference.child("Passengers")
+        firestore = FirebaseFirestore.getInstance()
+        passengersCollection = firestore.collection("Passengers")
 
         binding.loginForgotPassword.setOnClickListener {
             startActivity(Intent(this@LoginActivity, ForgotPasswordActivity::class.java))
@@ -55,38 +52,37 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginPassenger(phoneNumber: String, password: String) {
-        databaseReference.orderByChild("mobile_No")
-            .equalTo(phoneNumber)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        for (userSnapshot in dataSnapshot.children) {
-                            val userData = userSnapshot.getValue(PassengerData::class.java)
-                            if (userData != null && userData.password == password) {
-                                Toast.makeText(
-                                    this@LoginActivity, getString(R.string.CongratulationSuccessfullyLogin),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                val intent = Intent(this@LoginActivity, PermissionActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                startActivity(intent)
-                                finish()
-                                return
-                            }
+        passengersCollection.whereEqualTo("mobile_No", phoneNumber)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    for (document in querySnapshot.documents) {
+                        val userData = document.toObject(PassengerData::class.java)
+                        if (userData != null && userData.password == password) {
+                            Toast.makeText(
+                                this@LoginActivity,
+                                getString(R.string.CongratulationSuccessfullyLogin),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            val intent = Intent(this@LoginActivity, PermissionActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            startActivity(intent)
+                            finish()
+                            return@addOnSuccessListener
                         }
                     }
-                    Toast.makeText(
-                        this@LoginActivity, getString(R.string.WrongInformation),
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
+                Toast.makeText(
+                    this@LoginActivity, getString(R.string.WrongInformation),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@LoginActivity, "Database Error: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
-                override fun onCancelled(databaseError: DatabaseError) {
-                    Toast.makeText(
-                        this@LoginActivity, "Database Error: ${databaseError.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
     }
 }

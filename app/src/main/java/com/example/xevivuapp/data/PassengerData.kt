@@ -7,7 +7,7 @@ data class PassengerData(
     val email :String? = null,
     val gender :Boolean? = null,
     val mobile_No :String? = null,
-    val point :Double? = null,
+    val point :Int? = null,
     val password :String? = null,
     val avatar_Link :String? = null
 )
