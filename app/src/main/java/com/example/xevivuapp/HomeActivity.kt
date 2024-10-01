@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -35,7 +36,10 @@ import com.example.xevivuapp.common.utils.Utils.formatCurrency
 import com.example.xevivuapp.common.utils.Utils.getCurrentTimeFormatted
 import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
 import com.example.xevivuapp.common.utils.showLocationPermissionDialog
+import com.example.xevivuapp.data.TripData
 import com.example.xevivuapp.databinding.ActivityHomeBinding
+import com.firebase.geofire.GeoFireUtils
+import com.firebase.geofire.GeoLocation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -54,14 +58,21 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import org.json.JSONArray
 import org.json.JSONException
+import java.util.Date
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private var mGoogleMap: GoogleMap? = null
@@ -70,6 +81,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityHomeBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var passengersCollection: CollectionReference
+    private lateinit var driversCollection: CollectionReference
+    private lateinit var tripsCollection: CollectionReference
+    private var passengerID: String = ""
+    private var driverID: String = ""
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
@@ -113,6 +130,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        firestore = FirebaseFirestore.getInstance()
+        tripsCollection = firestore.collection("Trips")
+        passengerID = intent.getStringExtra("Passenger_ID").toString()
 
         Places.initialize(applicationContext, BuildConfig.MAP_KEY)
         autocompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment)
@@ -277,6 +298,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             bookingButton.setOnClickListener {
                 if (paymentType != null) {
                     setUpUIWhenBooking()
+                    setUpDataWhenBooking()
 
                     mGoogleMap?.clear()
                     // Tilt
@@ -660,5 +682,76 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    private fun setUpDataWhenBooking() {
+        val tripID = tripsCollection.document().id
+        val tripData = TripData(
+            trip_ID = tripID,
+            originLatLng = originLatLng,
+            originAddress = originAddress,
+            destinationLatLng = destinationLatLng,
+            destinationAddress = destinationAddress,
+            vehicleType = vehicleType,
+            paymentType = paymentType,
+            price = distance.convertMetersToKilometers().calculateMoney(vehicleType!!),
+            distance = distance,
+            duration = duration,
+            bookingTime = Date().toString(),
+            status = Constants.NEW,
+            passsenger_ID = passengerID
+        )
+        tripsCollection.document(tripID).set(tripData)
+            .addOnSuccessListener {
+                findDriver()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@HomeActivity,
+                    "Database Error: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun findDriver() {
+        val center = GeoLocation(originLatLng?.latitude!!, originLatLng?.longitude!!)
+        val radiusInM = (Constants.MIN_RADIUS *  Constants.KM).toDouble()
+
+        val bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInM)
+        val tasks: MutableList<Task<QuerySnapshot>> = ArrayList()
+        for (b in bounds) {
+            val q = firestore.collection("Drivers")
+                .orderBy("geohash")
+                .startAt(b.startHash)
+                .endAt(b.endHash)
+            tasks.add(q.get())
+        }
+
+        Tasks.whenAllComplete(tasks)
+            .addOnCompleteListener {
+                val matchingDocs: MutableList<DocumentSnapshot> = ArrayList()
+                for (task in tasks) {
+                    val snap = task.result
+                    for (doc in snap!!.documents) {
+                        val driverLat = doc.getDouble("current_Lat")!!
+                        val driverLng = doc.getDouble("current_Lng")!!
+
+                        // We have to filter out a few false positives due to GeoHash
+                        // accuracy, but most will match
+                        val docLocation = GeoLocation(driverLat, driverLng)
+                        val distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center)
+                        if (distanceInM <= radiusInM) {
+                            matchingDocs.add(doc)
+                        }
+                    }
+                }
+
+                // matchingDocs contains the results
+                if (matchingDocs.isNotEmpty()){
+                    Toast.makeText(this@HomeActivity, matchingDocs[0].id, Toast.LENGTH_LONG).show()
+                }
+            }
+
     }
 }

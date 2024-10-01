@@ -19,11 +19,14 @@ const val REQUEST_CODE = 300
 class PermissionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPermissionBinding
+    private var passengerID: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        passengerID = intent.getStringExtra("Passenger_ID").toString()
 
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -35,6 +38,7 @@ class PermissionActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             val intent = Intent(this@PermissionActivity, HomeActivity::class.java)
+            intent.putExtra("Passenger_ID", passengerID)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         }
@@ -84,6 +88,7 @@ class PermissionActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                     val intent = Intent(this@PermissionActivity, HomeActivity::class.java)
+                    intent.putExtra("Passenger_ID", passengerID)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     startActivity(intent)
                 } else {
@@ -93,6 +98,7 @@ class PermissionActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                     val intent = Intent(this@PermissionActivity, HomeActivity::class.java)
+                    intent.putExtra("Passenger_ID", passengerID)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     startActivity(intent)
                 }

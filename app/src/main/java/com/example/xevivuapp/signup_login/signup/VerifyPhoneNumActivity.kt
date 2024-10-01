@@ -159,6 +159,7 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                                 this@VerifyPhoneNumActivity,
                                 PermissionActivity::class.java
                             )
+                            intent.putExtra("Passenger_ID", userid)
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                             startActivity(intent)
                             finish()
@@ -172,6 +173,7 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                         }
 
                     val intent = Intent(this@VerifyPhoneNumActivity, PermissionActivity::class.java)
+                    intent.putExtra("Passenger_ID", userid)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     startActivity(intent)
                     finish()

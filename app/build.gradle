@@ -120,6 +120,9 @@ dependencies {
 
     // Firestore
     implementation "com.google.firebase:firebase-firestore"
+
+    // Geofire
+    implementation 'com.firebase:geofire-android-common:3.2.0'
 }
 
 def getMapKey() {
