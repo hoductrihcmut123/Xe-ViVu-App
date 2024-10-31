@@ -83,4 +83,18 @@
     <string name="Momo">Momo</string>
     <string name="Booking">Đặt xe</string>
     <string name="CancelBooking">Hủy đặt xe</string>
+    <string name="NoVehiclesAvailable">Chúng tôi xin lỗi, không có phương tiện nào ở gần khu vực này.</string>
+    <string name="TryAgain">Chọn địa điểm khác/Thử lại</string>
+    <string name="SampleName">Nguyễn Văn A</string>
+    <string name="DriverIsComing">Tài xế đang đến</string>
+    <string name="DriverFound">Đã tìm được tài xế cho bạn rồi nè !</string>
+    <string name="DriverCancel">Xin lỗi bạn, vì lý do nào đó mà tài xế đã Hủy chuyến. Bạn có muốn tiếp tục tìm tài xế khác ?</string>
+    <string name="Yes">Có</string>
+    <string name="No">Không</string>
+    <string name="DriverArrived">Tài xế đã đến</string>
+    <string name="DriverArrivedNotification">Tài xế đã đến điểm đón rồi bạn ơi !</string>
+    <string name="Rating">Đánh giá</string>
+    <string name="DriverReport">Báo cáo tài xế</string>
+    <string name="Excellent">Tuyệt vời</string>
+    <string name="WriteFeedback">\u00A0Viết đánh giá</string>
 </resources>

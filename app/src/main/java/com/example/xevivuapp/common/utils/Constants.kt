@@ -15,16 +15,17 @@ object Constants {
     const val EFFECT_DURATION = 1000
     const val KM = 1000
     const val MIN_RADIUS = 2
+    const val INCREASE_RADIUS_RATIO = 1.2
 
     // status booking
     const val NEW = "NEW"
     const val WAITING = "WAITING"
     const val ACCEPT = "ACCEPT"
     const val REFUSE = "REFUSE"
-    const val NOT_FOUND = "NOT_FOUND"
     const val PICK_UP_POINT = "PICK_UP_POINT"
     const val GOING = "GOING"
-    const val CANCEL = "CANCEL"
+    const val PASSENGER_CANCEL = "PASSENGER_CANCEL"
+    const val DRIVER_CANCEL = "DRIVER_CANCEL"
     const val ARRIVE = "ARRIVE"
     const val COMPLETED = "COMPLETED"
 }

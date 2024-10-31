@@ -97,6 +97,40 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/subTitle" />
 
+         <LinearLayout
+            android:id="@+id/driverFoundNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rounded_corner_notification"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_marginStart="@dimen/_35sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:elevation="@dimen/_15sdp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/_10sdp"
+                android:layout_height="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_22sdp"
+                android:layout_marginEnd="@dimen/_12sdp"
+                android:src="@drawable/blue_dot_icon" />
+
+            <TextView
+                android:id="@+id/driverFoundNotificationContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/DriverFound"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/_17ssp"
+                android:layout_marginVertical="@dimen/_13sdp"/>
+        </LinearLayout>
+
         <Button
             android:id="@+id/chooseLocationButton"
             android:layout_width="0dp"
@@ -161,7 +195,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        tools:visibility="gone"/>
+        tools:visibility="gone" />
 
     <include
         android:id="@+id/bottomSheetPaymentType"
@@ -174,6 +208,46 @@
     <include
         android:id="@+id/bottomSheetBookingInfo"
         layout="@layout/booking_info_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomSheetBookingFail"
+        layout="@layout/booking_fail_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomSheetBookingSuccess"
+        layout="@layout/booking_success_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomSheetDriverCancel"
+        layout="@layout/driver_cancel_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomSheetOnGoing"
+        layout="@layout/ongoing_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomSheetRating"
+        layout="@layout/rating_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"

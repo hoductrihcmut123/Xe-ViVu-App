@@ -83,4 +83,18 @@
     <string name="Momo">Momo</string>
     <string name="Booking">Booking</string>
     <string name="CancelBooking">Cancel booking</string>
+    <string name="NoVehiclesAvailable">We\'re sorry, there are no vehicles available near this area.</string>
+    <string name="TryAgain">Choose another location/Try again</string>
+    <string name="SampleName">Nguyễn Văn A</string>
+    <string name="DriverIsComing">Driver is coming</string>
+    <string name="DriverFound">We have found a driver for you !</string>
+    <string name="DriverCancel">Sorry, for some reason the driver has cancelled the trip. Do you want to continue looking for another driver?</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="DriverArrived">The driver has arrived.</string>
+    <string name="DriverArrivedNotification">The driver has arrived at the pick up point!</string>
+    <string name="Rating">Rating</string>
+    <string name="DriverReport">Driver report</string>
+    <string name="Excellent">Excellent</string>
+    <string name="WriteFeedback">\u00A0Write feedback</string>
 </resources>

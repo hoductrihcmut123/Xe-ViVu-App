@@ -35,6 +35,7 @@ import com.example.xevivuapp.common.utils.Utils.convertSecondsToMinutes
 import com.example.xevivuapp.common.utils.Utils.formatCurrency
 import com.example.xevivuapp.common.utils.Utils.getCurrentTimeFormatted
 import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
+import com.example.xevivuapp.common.utils.Utils.vibrateCustomPattern
 import com.example.xevivuapp.common.utils.showLocationPermissionDialog
 import com.example.xevivuapp.data.TripData
 import com.example.xevivuapp.databinding.ActivityHomeBinding
@@ -68,8 +69,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
+import me.zhanghai.android.materialratingbar.MaterialRatingBar
 import org.json.JSONArray
 import org.json.JSONException
 import java.util.Date
@@ -87,6 +92,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var tripsCollection: CollectionReference
     private var passengerID: String = ""
     private var driverID: String = ""
+    private var exceptDriverID: String = ""
+    private var tripID: String = ""
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
@@ -104,6 +111,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetVehicleType: BottomSheetBehavior<View>
     private lateinit var bottomSheetPaymentType: BottomSheetBehavior<View>
     private lateinit var bottomSheetBookingInfo: BottomSheetBehavior<View>
+    private lateinit var bottomSheetBookingFail: BottomSheetBehavior<View>
+    private lateinit var bottomSheetBookingSuccess: BottomSheetBehavior<View>
+    private lateinit var bottomSheetDriverCancel: BottomSheetBehavior<View>
+    private lateinit var bottomSheetOnGoing: BottomSheetBehavior<View>
+    private lateinit var bottomSheetRating: BottomSheetBehavior<View>
+
+    private var listenerTrip: ListenerRegistration? = null
+    private var listenerDriver: ListenerRegistration? = null
 
     // Effect
     private var lastUserCircle: Circle? = null
@@ -132,6 +147,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         firestore = FirebaseFirestore.getInstance()
+        passengersCollection = firestore.collection("Passengers")
+        driversCollection = firestore.collection("Drivers")
         tripsCollection = firestore.collection("Trips")
         passengerID = intent.getStringExtra("Passenger_ID").toString()
 
@@ -205,6 +222,38 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         bottomSheetBookingInfo.peekHeight = 0
         bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBookingInfo.isDraggable = false
+
+        // Set up bottomSheetBookingFail
+        bottomSheetBookingFail = BottomSheetBehavior.from(findViewById(R.id.bottomSheetBookingFail))
+        bottomSheetBookingFail.peekHeight = 0
+        bottomSheetBookingFail.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBookingFail.isDraggable = false
+
+        // Set up bottomSheetBookingSuccess
+        bottomSheetBookingSuccess =
+            BottomSheetBehavior.from(findViewById(R.id.bottomSheetBookingSuccess))
+        bottomSheetBookingSuccess.peekHeight = 0
+        bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBookingSuccess.isDraggable = false
+
+        // Set up bottomSheetDriverCancel
+        bottomSheetDriverCancel =
+            BottomSheetBehavior.from(findViewById(R.id.bottomSheetDriverCancel))
+        bottomSheetDriverCancel.peekHeight = 0
+        bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetDriverCancel.isDraggable = false
+
+        // Set up bottomSheetOnGoing
+        bottomSheetOnGoing = BottomSheetBehavior.from(findViewById(R.id.bottomSheetOnGoing))
+        bottomSheetOnGoing.peekHeight = 0
+        bottomSheetOnGoing.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetOnGoing.isDraggable = false
+
+        // Set up bottomSheetRating
+        bottomSheetRating = BottomSheetBehavior.from(findViewById(R.id.bottomSheetRating))
+        bottomSheetRating.peekHeight = 0
+        bottomSheetRating.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetRating.isDraggable = false
 
         binding.currentLocationButton.setOnClickListener {
             if (this@HomeActivity.isCheckLocationPermission()) {
@@ -328,8 +377,90 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             .build()
                     )
                 )
+                tripsCollection.document(tripID).delete()
+                if (driverID.isNotEmpty()) {
+                    driversCollection.document(driverID).update(
+                        mapOf(
+                            "trip_ID" to FieldValue.delete()
+                        )
+                    )
+                }
+                driverID = ""
+                tripID = ""
             }
         }
+
+        with(binding.bottomSheetBookingSuccess) {
+            callButton.setOnClickListener {
+                driversCollection.document(driverID).get().addOnSuccessListener { document ->
+                    val phone = document.getString("mobile_No")
+                    val phoneIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                    startActivity(phoneIntent)
+                }
+            }
+            chatButton.setOnClickListener {
+                driversCollection.document(driverID).get().addOnSuccessListener { document ->
+                    val phone = document.getString("mobile_No")
+                    val smsIntent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phone"))
+                    startActivity(smsIntent)
+                }
+            }
+            cancelWhileArrivingButton.setOnClickListener {
+                mGoogleMap?.clear()
+                binding.driverFoundNotification.isVisible = false
+                binding.title.isVisible = false
+                bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+
+                val tripRef = firestore.collection("Trips").document(tripID)
+                tripRef.update(
+                    mapOf(
+                        "status" to Constants.PASSENGER_CANCEL
+                    )
+                )
+                resetAfterCancelBooking(isDeleteTrip = false)
+            }
+            personalInfoLayout.setOnClickListener {
+                // TODO later
+                Toast.makeText(this@HomeActivity, "Personal Info", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        with(binding.bottomSheetDriverCancel) {
+            findAnotherDriverButton.setOnClickListener {
+                exceptDriverID = driverID
+                bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_COLLAPSED
+                setUpUIWhenBooking()
+                setUpDataWhenBooking()
+
+                mGoogleMap?.clear()
+                // Tilt
+                val cameraPos = CameraPosition.Builder().target(originLatLng!!)
+                    .tilt(45f)
+                    .zoom(16f)
+                    .build()
+                mGoogleMap?.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPos))
+
+                // Start animation
+                addMarkerWithPulseAnimation()
+            }
+            notFindAnotherDriverButton.setOnClickListener {
+                resetAfterCancelBooking(isDeleteTrip = false)
+                bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
+        binding.bottomSheetBookingFail.tryAgainButton.setOnClickListener {
+            bottomSheetBookingFail.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        binding.bottomSheetRating.ratingBar.setOnRatingChangeListener { _, rating ->
+            if (rating >= 4) {
+                binding.bottomSheetRating.tvExcellent.isVisible = true
+            } else {
+                binding.bottomSheetRating.tvExcellent.isVisible = false
+            }
+        }
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -381,6 +512,44 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    private fun addMotoMarker(position: LatLng): Marker? {
+        return mGoogleMap?.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title("Custom Started Marker")
+                .draggable(false)
+                .icon(
+                    BitmapDescriptorFactory.fromBitmap(
+                        Bitmap.createScaledBitmap(
+                            BitmapFactory.decodeResource(resources, R.drawable.moto_top),
+                            66,
+                            112,
+                            false
+                        )
+                    )
+                )
+        )
+    }
+
+    private fun addCarMarker(position: LatLng): Marker? {
+        return mGoogleMap?.addMarker(
+            MarkerOptions()
+                .position(position)
+                .title("Custom Started Marker")
+                .draggable(false)
+                .icon(
+                    BitmapDescriptorFactory.fromBitmap(
+                        Bitmap.createScaledBitmap(
+                            BitmapFactory.decodeResource(resources, R.drawable.car_top),
+                            56,
+                            114,
+                            false
+                        )
+                    )
+                )
+        )
+    }
+
     private fun zoomOnMap(latLng: LatLng, zoomRate: Float = 14f) {
         val newLatLngZoom = CameraUpdateFactory.newLatLngZoom(latLng, zoomRate)
         mGoogleMap?.animateCamera(newLatLngZoom)
@@ -391,7 +560,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         addPulsatingEffect(originLatLng)
     }
 
-    private fun addPulsatingEffect(originLatLng: LatLng?) {
+    private fun addPulsatingEffect(originLatLng: LatLng?, isStartSpinningAnimate: Boolean = true) {
         lastPulseAnimator?.cancel()
         if (lastUserCircle != null) {
             lastUserCircle?.remove()
@@ -414,7 +583,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Start rotating camera
-        startMapCameraSpinningAnimation(mGoogleMap?.cameraPosition?.target)
+        if (isStartSpinningAnimate) {
+            startMapCameraSpinningAnimation(mGoogleMap?.cameraPosition?.target)
+        }
     }
 
     private fun startMapCameraSpinningAnimation(target: LatLng?) {
@@ -432,7 +603,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 CameraUpdateFactory.newCameraPosition(
                     CameraPosition.Builder()
                         .target(target!!)
-                        .zoom(16f)
+                        .zoom(15f)
                         .tilt(45f)
                         .bearing(newBearingValue)
                         .build()
@@ -648,7 +819,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             bottomSheetPaymentType.state = BottomSheetBehavior.STATE_COLLAPSED
             mGoogleMap?.setOnMapLongClickListener(mapLongClickListener)
             mGoogleMap?.setOnMarkerClickListener(markerClickListener)
-            mGoogleMap?.setPadding(0, 0, 60, 0)
+            mGoogleMap?.setPadding(0, 0, 0, 0)
         }
         mGoogleMap?.clear()
         destinationLatLng = null
@@ -685,12 +856,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setUpDataWhenBooking() {
-        val tripID = tripsCollection.document().id
+        tripID = tripsCollection.document().id
         val tripData = TripData(
             trip_ID = tripID,
-            originLatLng = originLatLng,
+            originLatLng = GeoPoint(originLatLng!!.latitude, originLatLng!!.longitude),
             originAddress = originAddress,
-            destinationLatLng = destinationLatLng,
+            destinationLatLng = GeoPoint(
+                destinationLatLng!!.latitude,
+                destinationLatLng!!.longitude
+            ),
             destinationAddress = destinationAddress,
             vehicleType = vehicleType,
             paymentType = paymentType,
@@ -699,11 +873,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             duration = duration,
             bookingTime = Date().toString(),
             status = Constants.NEW,
-            passsenger_ID = passengerID
+            passenger_ID = passengerID
         )
         tripsCollection.document(tripID).set(tripData)
             .addOnSuccessListener {
-                findDriver()
+                findDriver(tripID)
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(
@@ -714,44 +888,215 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
-    private fun findDriver() {
-        val center = GeoLocation(originLatLng?.latitude!!, originLatLng?.longitude!!)
-        val radiusInM = (Constants.MIN_RADIUS *  Constants.KM).toDouble()
+    private fun findDriver(tripID: String, volume: Int = 1) {
+        if (volume <= 3) {
+            val center = GeoLocation(originLatLng?.latitude!!, originLatLng?.longitude!!)
+            val radiusInM =
+                ((Constants.MIN_RADIUS + ((volume - 1) * Constants.INCREASE_RADIUS_RATIO)) * Constants.KM)
 
-        val bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInM)
-        val tasks: MutableList<Task<QuerySnapshot>> = ArrayList()
-        for (b in bounds) {
-            val q = firestore.collection("Drivers")
-                .orderBy("geohash")
-                .startAt(b.startHash)
-                .endAt(b.endHash)
-            tasks.add(q.get())
-        }
-
-        Tasks.whenAllComplete(tasks)
-            .addOnCompleteListener {
-                val matchingDocs: MutableList<DocumentSnapshot> = ArrayList()
-                for (task in tasks) {
-                    val snap = task.result
-                    for (doc in snap!!.documents) {
-                        val driverLat = doc.getDouble("current_Lat")!!
-                        val driverLng = doc.getDouble("current_Lng")!!
-
-                        // We have to filter out a few false positives due to GeoHash
-                        // accuracy, but most will match
-                        val docLocation = GeoLocation(driverLat, driverLng)
-                        val distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center)
-                        if (distanceInM <= radiusInM) {
-                            matchingDocs.add(doc)
-                        }
-                    }
-                }
-
-                // matchingDocs contains the results
-                if (matchingDocs.isNotEmpty()){
-                    Toast.makeText(this@HomeActivity, matchingDocs[0].id, Toast.LENGTH_LONG).show()
-                }
+            val bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInM)
+            val tasks: MutableList<Task<QuerySnapshot>> = ArrayList()
+            for (b in bounds) {
+                val q = firestore.collection("Drivers")
+                    .orderBy("geohash")
+                    .startAt(b.startHash)
+                    .endAt(b.endHash)
+                tasks.add(q.get())
             }
 
+            Tasks.whenAllComplete(tasks)
+                .addOnCompleteListener {
+                    val matchingDocs: MutableList<DocumentSnapshot> = ArrayList()
+                    for (task in tasks) {
+                        val snap = task.result
+                        for (doc in snap!!.documents) {
+                            val driverLat = doc.getDouble("current_Lat") ?: 0.0
+                            val driverLng = doc.getDouble("current_Lng") ?: 0.0
+
+                            // We have to filter out a few false positives due to GeoHash
+                            // accuracy, but most will match
+                            val docLocation = GeoLocation(driverLat, driverLng)
+                            val distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center)
+                            if (distanceInM <= radiusInM) {
+                                matchingDocs.add(doc)
+                            }
+                        }
+                    }
+                    // except driverID in matchingDocs
+                    if (exceptDriverID.isNotEmpty()) {
+                        matchingDocs.removeIf { it.id == exceptDriverID }
+                    }
+
+                    // matchingDocs contains the results
+                    if (matchingDocs.isNotEmpty()) {
+                        notifyDrivers(matchingDocs, tripID)
+                    } else {
+                        findDriver(tripID, volume + 1)
+                    }
+                }
+        } else {
+            resetAfterCancelBooking()
+        }
     }
+
+    private fun notifyDrivers(
+        matchingDocs: MutableList<DocumentSnapshot>,
+        tripID: String
+    ) {
+        val tripRef = tripsCollection.document(tripID)
+
+        tripRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val status = document.getString("status")
+                if (status == Constants.NEW) {
+                    notifyEachDriver(matchingDocs, tripID)
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.w("TripStatus", "Error getting document", e)
+        }
+
+        listenerTrip = tripRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FirestoreListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val status = snapshot.getString("status")
+                if (status == Constants.REFUSE) {
+                    if (matchingDocs.size > 1) {
+                        matchingDocs.removeFirst()
+                        notifyEachDriver(matchingDocs, tripID)
+                    } else {
+                        vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                        resetAfterCancelBooking()
+                    }
+                }
+                if (status == Constants.ACCEPT) {
+                    vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    animator?.cancel()
+                    mGoogleMap?.moveCamera(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.Builder().target(originLatLng!!)
+                                .tilt(0f)
+                                .zoom(15f)
+                                .build()
+                        )
+                    )
+
+                    driverID = snapshot.getString("driver_ID")!!
+                    binding.title.isVisible = true
+                    binding.title.text = getString(R.string.DriverIsComing)
+                    binding.menuButton.isVisible = true
+                    binding.driverFoundNotificationContent.text = getString(R.string.DriverFound)
+                    binding.driverFoundNotification.isVisible = true
+                    bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_EXPANDED
+                    with(binding.bottomSheetBookingSuccess) {
+                        driversCollection.document(driverID).get()
+                            .addOnSuccessListener { document ->
+                                tvDriverName.text = buildString {
+                                    append(document.getString("lastname"))
+                                    append(" ")
+                                    append(document.getString("firstname"))
+                                }
+                                tvRating.text = document.getDouble("rate").toString()
+                                tvLicensePlate.text = document.getString("license_Plate")
+                                tvVehicleType.text = buildString {
+                                    append(document.getString("vehicle_Brand"))
+                                    append(" ")
+                                    append(document.getString("vehicle_Type"))
+                                }
+                            }
+                    }
+                    addDefaultMarker(originLatLng!!)
+                    listenerDriverLocation(driverID)
+                }
+                if (status == Constants.DRIVER_CANCEL) {
+                    vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    mGoogleMap?.clear()
+                    binding.driverFoundNotification.isVisible = false
+                    binding.title.isVisible = false
+                    bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_EXPANDED
+                }
+                if (status == Constants.PICK_UP_POINT) {
+                    vibrateCustomPattern(this, times = 3, duration = 250L, interval = 400L)
+                    binding.title.text = getString(R.string.DriverArrived)
+                    binding.driverFoundNotificationContent.text = getString(R.string.DriverArrivedNotification)
+                }
+            } else {
+                Log.d("FirestoreListener", "Document does not exist.")
+            }
+        }
+    }
+
+    private fun listenerDriverLocation(driverId: String) {
+        val driverRef = driversCollection.document(driverId)
+        listenerDriver = driverRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("DriverLocationListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val driverLat = snapshot.getDouble("current_Lat") ?: 0.0
+                val driverLng = snapshot.getDouble("current_Lng") ?: 0.0
+                val driverLocation = LatLng(driverLat, driverLng)
+                mGoogleMap?.clear()
+                addDefaultMarker(originLatLng!!)
+                addMotoMarker(driverLocation)
+                addPulsatingEffect(originLatLng, isStartSpinningAnimate = false)
+            } else {
+                Log.d("DriverLocationListener", "Document does not exist.")
+            }
+        }
+    }
+
+    private fun notifyEachDriver(
+        matchingDocs: MutableList<DocumentSnapshot>,
+        tripID: String
+    ) {
+        val tripRef = tripsCollection.document(tripID)
+        tripRef.update("status", Constants.WAITING)
+
+        val updates: MutableMap<String, Any> = mutableMapOf(
+            "trip_ID" to tripID,
+        )
+        driverID = matchingDocs[0].id
+        val driverRef = driversCollection.document(driverID)
+        driverRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val ready = document.getBoolean("ready") ?: false
+                if (ready) {
+                    driverRef.update(updates)
+                }
+            }
+        }
+    }
+
+    private fun resetAfterCancelBooking(isDeleteTrip: Boolean = true) {
+        resetValue()
+        bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+        binding.driverFoundNotification.isVisible = false
+        animator?.cancel()
+        mGoogleMap?.moveCamera(
+            CameraUpdateFactory.newCameraPosition(
+                CameraPosition.Builder().target(mGoogleMap?.cameraPosition!!.target)
+                    .tilt(0f)
+                    .zoom(14f)
+                    .build()
+            )
+        )
+        if (isDeleteTrip) {
+            bottomSheetBookingFail.state = BottomSheetBehavior.STATE_EXPANDED
+            tripsCollection.document(tripID).delete()
+        }
+        listenerTrip?.remove()
+        listenerDriver?.remove()
+        this.tripID = ""
+        driverID = ""
+        exceptDriverID = ""
+    }
+
 }
