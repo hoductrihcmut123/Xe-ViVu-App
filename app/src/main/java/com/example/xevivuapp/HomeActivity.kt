@@ -29,14 +29,18 @@ import com.example.xevivuapp.common.utils.Constants.DESIRED_NUM_OF_SPINS
 import com.example.xevivuapp.common.utils.Constants.DESIRED_SECOND_PER_ONE_FULL_360_SPIN
 import com.example.xevivuapp.common.utils.Constants.EFFECT_DURATION
 import com.example.xevivuapp.common.utils.Utils
+import com.example.xevivuapp.common.utils.Utils.calculateMinutesDifference
 import com.example.xevivuapp.common.utils.Utils.calculateMoney
 import com.example.xevivuapp.common.utils.Utils.convertMetersToKilometers
 import com.example.xevivuapp.common.utils.Utils.convertSecondsToMinutes
 import com.example.xevivuapp.common.utils.Utils.formatCurrency
 import com.example.xevivuapp.common.utils.Utils.getCurrentTimeFormatted
+import com.example.xevivuapp.common.utils.Utils.getHourAndMinute
 import com.example.xevivuapp.common.utils.Utils.isCheckLocationPermission
 import com.example.xevivuapp.common.utils.Utils.vibrateCustomPattern
 import com.example.xevivuapp.common.utils.showLocationPermissionDialog
+import com.example.xevivuapp.common.utils.showLocationRequestDialog
+import com.example.xevivuapp.data.ReasonData
 import com.example.xevivuapp.data.TripData
 import com.example.xevivuapp.databinding.ActivityHomeBinding
 import com.firebase.geofire.GeoFireUtils
@@ -44,7 +48,9 @@ import com.firebase.geofire.GeoLocation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -74,7 +80,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
-import me.zhanghai.android.materialratingbar.MaterialRatingBar
+import com.google.firebase.firestore.SetOptions
 import org.json.JSONArray
 import org.json.JSONException
 import java.util.Date
@@ -94,6 +100,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private var driverID: String = ""
     private var exceptDriverID: String = ""
     private var tripID: String = ""
+    private var reasonID: String = ""
+    private var driverFeedbackId: String = ""
+    private var isRating: Boolean = false
+    private var isReceiptOpened: Boolean = false
+    private var isDriverConfirm: Boolean = false
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
@@ -116,9 +127,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetDriverCancel: BottomSheetBehavior<View>
     private lateinit var bottomSheetOnGoing: BottomSheetBehavior<View>
     private lateinit var bottomSheetRating: BottomSheetBehavior<View>
+    private lateinit var bottomSheetCancellation: BottomSheetBehavior<View>
+    private lateinit var bottomSheetReport: BottomSheetBehavior<View>
+    private lateinit var bottomSheetReceipt: BottomSheetBehavior<View>
 
     private var listenerTrip: ListenerRegistration? = null
     private var listenerDriver: ListenerRegistration? = null
+
+    private var currentMarkerInTrip: Marker? = null
 
     // Effect
     private var lastUserCircle: Circle? = null
@@ -252,28 +268,65 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         // Set up bottomSheetRating
         bottomSheetRating = BottomSheetBehavior.from(findViewById(R.id.bottomSheetRating))
         bottomSheetRating.peekHeight = 0
-        bottomSheetRating.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetRating.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetRating.isDraggable = false
 
+        // Set up bottomSheetCancellation
+        bottomSheetCancellation =
+            BottomSheetBehavior.from(findViewById(R.id.bottomSheetCancellation))
+        bottomSheetCancellation.peekHeight = 0
+        bottomSheetCancellation.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetCancellation.isDraggable = false
+
+        // Set up bottomSheetReport
+        bottomSheetReport = BottomSheetBehavior.from(findViewById(R.id.bottomSheetReport))
+        bottomSheetReport.peekHeight = 0
+        bottomSheetReport.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetReport.isDraggable = false
+
+        // Set up bottomSheetReceipt
+        bottomSheetReceipt = BottomSheetBehavior.from(findViewById(R.id.bottomSheetReceipt))
+        bottomSheetReceipt.peekHeight = 0
+        bottomSheetReceipt.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetReceipt.isDraggable = false
+
         binding.currentLocationButton.setOnClickListener {
-            if (this@HomeActivity.isCheckLocationPermission()) {
-                mGoogleMap?.clear()
-                mFusedLocationClient?.lastLocation
-                    ?.addOnSuccessListener { location: Location? ->
-                        if (location != null) {
-                            originLatLng = LatLng(location.latitude, location.longitude)
+            val locationRequest = LocationRequest.create().apply {
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            }
+            val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+            val client = LocationServices.getSettingsClient(this)
+            val task = client.checkLocationSettings(builder.build())
+
+            task.addOnSuccessListener {
+                if (this@HomeActivity.isCheckLocationPermission()) {
+                    mGoogleMap?.clear()
+                    mFusedLocationClient?.lastLocation
+                        ?.addOnSuccessListener { location: Location? ->
+                            if (location != null) {
+                                originLatLng = LatLng(location.latitude, location.longitude)
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    getString(R.string.WaitSecondToDetermineLocation),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            originLatLng?.let { originLatLng -> zoomOnMap(originLatLng, 18f) }
+                            originLatLng?.let { originLatLng -> addDefaultMarker(originLatLng) }
+                            originLatLng?.let { originLatLng ->
+                                findAddress(
+                                    originLatLng,
+                                    isCurrentLocation = true
+                                )
+                            }
                         }
-                        originLatLng?.let { originLatLng -> zoomOnMap(originLatLng, 18f) }
-                        originLatLng?.let { originLatLng -> addDefaultMarker(originLatLng) }
-                        originLatLng?.let { originLatLng ->
-                            findAddress(
-                                originLatLng,
-                                isCurrentLocation = true
-                            )
-                        }
-                    }
-            } else {
-                showLocationPermissionDialog()
+                } else {
+                    showLocationPermissionDialog()
+                }
+            }
+            task.addOnFailureListener {
+                showLocationRequestDialog()
             }
         }
 
@@ -377,6 +430,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                             .build()
                     )
                 )
+                tripsCollection.document(tripID).collection("Reason").document(reasonID).delete()
                 tripsCollection.document(tripID).delete()
                 if (driverID.isNotEmpty()) {
                     driversCollection.document(driverID).update(
@@ -387,6 +441,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 driverID = ""
                 tripID = ""
+                driverFeedbackId = ""
+                reasonID = ""
+                isRating = false
             }
         }
 
@@ -410,6 +467,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 binding.driverFoundNotification.isVisible = false
                 binding.title.isVisible = false
                 bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+                bottomSheetCancellation.state = BottomSheetBehavior.STATE_EXPANDED
 
                 val tripRef = firestore.collection("Trips").document(tripID)
                 tripRef.update(
@@ -425,12 +483,244 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+        with(binding.bottomSheetOnGoing) {
+            ratingButton.setOnClickListener {
+                if (!isRating) {
+                    bottomSheetOnGoing.state = BottomSheetBehavior.STATE_COLLAPSED
+                    binding.title.text = getString(R.string.SendRating)
+                    with(binding.bottomSheetRating) {
+                        driversCollection.document(driverID).get()
+                            .addOnSuccessListener { document ->
+                                tvDriverName.text = buildString {
+                                    append(document.getString("lastname"))
+                                    append(" ")
+                                    append(document.getString("firstname"))
+                                }
+                                tvLicensePlate.text = document.getString("license_Plate")
+                                tvVehicleType.text = buildString {
+                                    append(document.getString("vehicle_Brand"))
+                                    append(" ")
+                                    append(document.getString("vehicle_Type"))
+                                }
+                            }
+                    }
+                    bottomSheetRating.state = BottomSheetBehavior.STATE_EXPANDED
+                    binding.backButton2.isVisible = true
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.YouHaveRated),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            reportButton.setOnClickListener {
+                bottomSheetOnGoing.state = BottomSheetBehavior.STATE_COLLAPSED
+                binding.title.text = getString(R.string.SendReport)
+                bottomSheetReport.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.backButton2.isVisible = true
+            }
+            personalInfoLayout.setOnClickListener {
+                // TODO later
+                Toast.makeText(this@HomeActivity, "Personal Info", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        with(binding.bottomSheetRating) {
+            var ratingStar = 0
+            ratingBar.setOnRatingChangeListener { _, rating ->
+                ratingStar = rating.toInt()
+                if (rating >= 4) {
+                    binding.bottomSheetRating.tvExcellent.isVisible = true
+                } else {
+                    binding.bottomSheetRating.tvExcellent.isVisible = false
+                }
+            }
+            feedbackButton.setOnClickListener {
+                if (ratingStar > 0) {
+                    val feedback = etFeedback.text.toString()
+                    if (driverFeedbackId.isEmpty()) {
+                        driverFeedbackId = firestore.collection("DriverFeedbacks").document().id
+                    }
+                    driversCollection.document(driverID).update(
+                        mapOf(
+                            "totalStar" to FieldValue.increment(ratingStar.toLong()),
+                            "rateStarNum" to FieldValue.increment(1)
+                        )
+                    )
+                    firestore.collection("DriverFeedbacks").document(driverFeedbackId)
+                        .set(
+                            mapOf(
+                                "driverFeedback_ID" to driverFeedbackId,
+                                "driver_ID" to driverID,
+                                "passenger_ID" to passengerID,
+                                "star" to ratingStar,
+                                "feedback" to feedback,
+                                "driverFeedbackTime" to Date().toString()
+                            ),
+                            SetOptions.merge()
+                        )
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.RatingSubmitted),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            bottomSheetRating.state = BottomSheetBehavior.STATE_COLLAPSED
+                            if (isReceiptOpened) {
+                                bottomSheetReceipt.state = BottomSheetBehavior.STATE_EXPANDED
+                                binding.title.isVisible = false
+                            } else {
+                                bottomSheetOnGoing.state = BottomSheetBehavior.STATE_EXPANDED
+                            }
+
+                            binding.title.text = getString(R.string.OnTheTrip)
+                            binding.backButton2.isVisible = false
+                            ratingStar = 0
+                            etFeedback.text.clear()
+                        }
+                    tripsCollection.document(tripID).collection("Reason").document(reasonID)
+                        .update(
+                            mapOf(
+                                "feedbackDriverRef" to firestore.collection("DriverFeedbacks")
+                                    .document(driverFeedbackId)
+                            )
+                        )
+                    isRating = true
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.PleaseRate),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        binding.backButton2.setOnClickListener {
+            bottomSheetRating.state = BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheetReport.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (isReceiptOpened) {
+                bottomSheetReceipt.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.title.isVisible = false
+            } else {
+                bottomSheetOnGoing.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+            binding.title.text = getString(R.string.OnTheTrip)
+            binding.backButton2.isVisible = false
+            binding.bottomSheetRating.ratingBar.rating = 0f
+            binding.bottomSheetRating.etFeedback.text.clear()
+            binding.bottomSheetReport.radioGroupReportReasons.clearCheck()
+            binding.bottomSheetReport.etReportFeedback.text.clear()
+        }
+
+        with(binding.bottomSheetReport) {
+            var reportReason = ""
+            radioGroupReportReasons.setOnCheckedChangeListener { _, checkId ->
+                reportReason = when (checkId) {
+                    R.id.radioReportReason1 -> getString(R.string.ReportReason1)
+                    R.id.radioReportReason2 -> getString(R.string.ReportReason2)
+                    R.id.radioReportReason3 -> getString(R.string.ReportReason3)
+                    R.id.radioReportReason4 -> getString(R.string.ReportReason4)
+                    R.id.radioReportReason5 -> getString(R.string.ReportReason5)
+                    else -> ""
+                }
+            }
+            sendReportButton.setOnClickListener {
+                if (reportReason.isNotEmpty()) {
+                    if (driverFeedbackId.isEmpty()) {
+                        driverFeedbackId = firestore.collection("DriverFeedbacks").document().id
+                    }
+                    val reportDetail = etReportFeedback.text.toString()
+                    firestore.collection("DriverFeedbacks").document(driverFeedbackId)
+                        .set(
+                            mapOf(
+                                "driverFeedback_ID" to driverFeedbackId,
+                                "driver_ID" to driverID,
+                                "passenger_ID" to passengerID,
+                                "reportDriverReason" to reportReason,
+                                "reportDriverReasonDetail" to reportDetail,
+                                "driverFeedbackTime" to Date().toString()
+                            ),
+                            SetOptions.merge()
+                        )
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.ReportSubmitted),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            bottomSheetReport.state = BottomSheetBehavior.STATE_COLLAPSED
+                            if (isReceiptOpened) {
+                                bottomSheetReceipt.state = BottomSheetBehavior.STATE_EXPANDED
+                                binding.title.isVisible = false
+                            } else {
+                                bottomSheetOnGoing.state = BottomSheetBehavior.STATE_EXPANDED
+                            }
+                            binding.title.text = getString(R.string.OnTheTrip)
+                            binding.backButton2.isVisible = false
+                            radioGroupReportReasons.clearCheck()
+                            etReportFeedback.text.clear()
+                        }
+                    tripsCollection.document(tripID).collection("Reason").document(reasonID)
+                        .update(
+                            mapOf(
+                                "feedbackDriverRef" to firestore.collection("DriverFeedbacks")
+                                    .document(driverFeedbackId)
+                            )
+                        )
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.PleaseChooseReason),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        with(binding.bottomSheetCancellation) {
+            var cancelReason = ""
+            radioGroupReasons.setOnCheckedChangeListener { _, checkId ->
+                cancelReason = when (checkId) {
+                    R.id.radioReason1 -> getString(R.string.CancellationReason1)
+                    R.id.radioReason2 -> getString(R.string.CancellationReason2)
+                    R.id.radioReason3 -> getString(R.string.CancellationReason3)
+                    R.id.radioReason4 -> getString(R.string.CancellationReason4)
+                    R.id.radioReason5 -> getString(R.string.CancellationReason5)
+                    else -> ""
+                }
+            }
+            sendCancellationButton.setOnClickListener {
+                if (cancelReason.isNotEmpty()) {
+                    bottomSheetCancellation.state = BottomSheetBehavior.STATE_COLLAPSED
+                    tripsCollection.document(tripID).collection("Reason").document(reasonID)
+                        .update(
+                            mapOf(
+                                "passengerCancelReason" to cancelReason
+                            )
+                        )
+                    radioGroupReasons.clearCheck()
+                    tripID = ""
+                    reasonID = ""
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.PleaseChooseReason),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }
+        }
+
         with(binding.bottomSheetDriverCancel) {
             findAnotherDriverButton.setOnClickListener {
                 exceptDriverID = driverID
                 bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_COLLAPSED
                 setUpUIWhenBooking()
                 setUpDataWhenBooking()
+                listenerDriver?.remove()
 
                 mGoogleMap?.clear()
                 // Tilt
@@ -446,21 +736,78 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
             notFindAnotherDriverButton.setOnClickListener {
                 resetAfterCancelBooking(isDeleteTrip = false)
                 bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_COLLAPSED
+                tripID = ""
+            }
+        }
+
+        with(binding.bottomSheetReceipt) {
+            ratingButtonReceipt.setOnClickListener {
+                if (!isRating) {
+                    bottomSheetReceipt.state = BottomSheetBehavior.STATE_COLLAPSED
+                    binding.title.text = getString(R.string.SendRating)
+                    binding.title.isVisible = true
+                    with(binding.bottomSheetRating) {
+                        driversCollection.document(driverID).get()
+                            .addOnSuccessListener { document ->
+                                tvDriverName.text = buildString {
+                                    append(document.getString("lastname"))
+                                    append(" ")
+                                    append(document.getString("firstname"))
+                                }
+                                tvLicensePlate.text = document.getString("license_Plate")
+                                tvVehicleType.text = buildString {
+                                    append(document.getString("vehicle_Brand"))
+                                    append(" ")
+                                    append(document.getString("vehicle_Type"))
+                                }
+                            }
+                    }
+                    bottomSheetRating.state = BottomSheetBehavior.STATE_EXPANDED
+                    binding.backButton2.isVisible = true
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.YouHaveRated),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            reportButtonReceipt.setOnClickListener {
+                bottomSheetReceipt.state = BottomSheetBehavior.STATE_COLLAPSED
+                binding.title.text = getString(R.string.SendReport)
+                binding.title.isVisible = true
+                bottomSheetReport.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.backButton2.isVisible = true
+            }
+            completeReceiptButton.setOnClickListener {
+                if (isDriverConfirm) {
+                    listenerDriver?.remove()
+                    mGoogleMap?.clear()
+                    binding.title.isVisible = false
+                    bottomSheetReceipt.state = BottomSheetBehavior.STATE_COLLAPSED
+                    resetAfterCancelBooking(isDeleteTrip = false)
+                    tripID = ""
+                    reasonID = ""
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.ThankYou),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
+                    Toast.makeText(
+                        this@HomeActivity,
+                        getString(R.string.WaitDriverConfirm),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
             }
         }
 
         binding.bottomSheetBookingFail.tryAgainButton.setOnClickListener {
             bottomSheetBookingFail.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-
-        binding.bottomSheetRating.ratingBar.setOnRatingChangeListener { _, rating ->
-            if (rating >= 4) {
-                binding.bottomSheetRating.tvExcellent.isVisible = true
-            } else {
-                binding.bottomSheetRating.tvExcellent.isVisible = false
-            }
-        }
-
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -635,8 +982,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onDestroy()
     }
 
-    private fun direction(origin: LatLng, destination: LatLng, mode: String = "driving") {
-        mGoogleMap?.clear()
+    private fun direction(
+        origin: LatLng,
+        destination: LatLng,
+        mode: String = "driving",
+        shouldClearMap: Boolean = true
+    ) {
+        if (shouldClearMap) {
+            mGoogleMap?.clear()
+        }
         val requestQueue = Volley.newRequestQueue(this)
         val url = Uri.parse("https://maps.googleapis.com/maps/api/directions/json")
             .buildUpon()
@@ -877,6 +1231,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         )
         tripsCollection.document(tripID).set(tripData)
             .addOnSuccessListener {
+                reasonID =
+                    tripsCollection.document(tripID).collection("Reason").document().id
+                val reasonData = ReasonData(
+                    reason_ID = reasonID
+                )
+                tripsCollection.document(tripID).collection("Reason").document(reasonID)
+                    .set(reasonData)
+                tripsCollection.document(tripID).update(
+                    mapOf(
+                        "reason_ID" to reasonID
+                    )
+                )
                 findDriver(tripID)
             }
             .addOnFailureListener { exception ->
@@ -987,7 +1353,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     driverID = snapshot.getString("driver_ID")!!
                     binding.title.isVisible = true
                     binding.title.text = getString(R.string.DriverIsComing)
-                    binding.menuButton.isVisible = true
                     binding.driverFoundNotificationContent.text = getString(R.string.DriverFound)
                     binding.driverFoundNotification.isVisible = true
                     bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -1000,7 +1365,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                                     append(" ")
                                     append(document.getString("firstname"))
                                 }
-                                tvRating.text = document.getDouble("rate").toString()
+                                tvRating.text = calculateRateAverage(document).toString()
                                 tvLicensePlate.text = document.getString("license_Plate")
                                 tvVehicleType.text = buildString {
                                     append(document.getString("vehicle_Brand"))
@@ -1012,18 +1377,121 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     addDefaultMarker(originLatLng!!)
                     listenerDriverLocation(driverID)
                 }
-                if (status == Constants.DRIVER_CANCEL) {
+                if (status == Constants.DRIVER_CANCEL || status == Constants.DRIVER_CANCEL_EMERGENCY) {
                     vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    listenerDriver?.remove()
                     mGoogleMap?.clear()
                     binding.driverFoundNotification.isVisible = false
                     binding.title.isVisible = false
                     bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetOnGoing.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetRating.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetReport.state = BottomSheetBehavior.STATE_COLLAPSED
                     bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_EXPANDED
                 }
                 if (status == Constants.PICK_UP_POINT) {
                     vibrateCustomPattern(this, times = 3, duration = 250L, interval = 400L)
                     binding.title.text = getString(R.string.DriverArrived)
-                    binding.driverFoundNotificationContent.text = getString(R.string.DriverArrivedNotification)
+                    binding.driverFoundNotificationContent.text =
+                        getString(R.string.DriverArrivedNotification)
+                }
+                if (status == Constants.GOING) {
+                    binding.title.text = getString(R.string.OnTheTrip)
+                    binding.driverFoundNotification.isVisible = false
+                    bottomSheetBookingSuccess.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetOnGoing.state = BottomSheetBehavior.STATE_EXPANDED
+
+                    listenerDriver?.remove()
+                    animator?.cancel()
+                    mGoogleMap?.moveCamera(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.Builder().target(originLatLng!!)
+                                .tilt(0f)
+                                .zoom(14f)
+                                .build()
+                        )
+                    )
+                    mGoogleMap?.clear()
+                    listenerDriverInTripLocation(driverID)
+
+                    direction(originLatLng!!, destinationLatLng!!, shouldClearMap = false)
+
+                    with(binding.bottomSheetOnGoing) {
+                        driversCollection.document(driverID).get()
+                            .addOnSuccessListener { document ->
+                                tvDriverName.text = buildString {
+                                    append(document.getString("lastname"))
+                                    append(" ")
+                                    append(document.getString("firstname"))
+                                }
+                                tvRating.text = calculateRateAverage(document).toString()
+                                tvLicensePlate.text = document.getString("license_Plate")
+                                tvVehicleType.text = buildString {
+                                    append(document.getString("vehicle_Brand"))
+                                    append(" ")
+                                    append(document.getString("vehicle_Type"))
+                                }
+                            }
+                    }
+                }
+                if (status == Constants.ARRIVE) {
+                    mGoogleMap?.clear()
+                    binding.title.isVisible = false
+                    binding.backButton2.isVisible = false
+                    bottomSheetOnGoing.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetReport.state = BottomSheetBehavior.STATE_COLLAPSED
+                    bottomSheetRating.state = BottomSheetBehavior.STATE_COLLAPSED
+                    binding.bottomSheetRating.ratingBar.rating = 0f
+                    binding.bottomSheetRating.etFeedback.text.clear()
+                    binding.bottomSheetReport.radioGroupReportReasons.clearCheck()
+                    binding.bottomSheetReport.etReportFeedback.text.clear()
+
+                    tripsCollection.document(tripID).get().addOnSuccessListener { document ->
+                        binding.bottomSheetReceipt.tvTimeBookingReceipt.text = getHourAndMinute(
+                            document.getString("startTime")!!
+                        )
+                        binding.bottomSheetReceipt.tvTimeCompleteReceipt.text = getHourAndMinute(
+                            document.getString("endTime")!!
+                        )
+                        binding.bottomSheetReceipt.tvOriginAddressReceipt.text =
+                            document.getString("originAddress")
+                        binding.bottomSheetReceipt.tvDestinationAddressReceipt.text =
+                            document.getString("destinationAddress")
+                        val tripPaymentType = document.getString("paymentType")!!
+                        when (tripPaymentType) {
+                            Constants.CASH -> binding.bottomSheetReceipt.tvPaymentTypeReceipt.text =
+                                getString(R.string.Cash)
+
+                            Constants.MOMO -> binding.bottomSheetReceipt.tvPaymentTypeReceipt.text =
+                                getString(R.string.Momo)
+                        }
+                        binding.bottomSheetReceipt.tvPriceReceipt.text =
+                            document.getDouble("price")?.formatCurrency()
+                        binding.bottomSheetReceipt.tvBookingTimeReceipt.text =
+                            document.getString("bookingTime")
+                        binding.bottomSheetReceipt.tvTravelDistanceReceipt.text = getString(
+                            R.string.TravelDistance,
+                            document.getDouble("distance")?.convertMetersToKilometers()?.toInt()
+                        )
+                        binding.bottomSheetReceipt.TvExactTimeReceipt.text = getString(
+                            R.string.ReceiptTime,
+                            calculateMinutesDifference(
+                                document.getString("startTime")!!,
+                                document.getString("endTime")!!
+                            )
+                        )
+                        isReceiptOpened = true
+                        bottomSheetReceipt.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+                if (status == Constants.COMPLETED) {
+                    val bonusPoint = Math.round(snapshot.getDouble("price")?.div(1000.0) ?: 0.0)
+                    Toast.makeText(
+                        this,
+                        getString(R.string.DriverConfirmCompleted, bonusPoint),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    isDriverConfirm = true
                 }
             } else {
                 Log.d("FirestoreListener", "Document does not exist.")
@@ -1052,6 +1520,30 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun listenerDriverInTripLocation(driverId: String) {
+        val driverRef = driversCollection.document(driverId)
+        listenerDriver = driverRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("DriverLocationListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val driverLat = snapshot.getDouble("current_Lat") ?: 0.0
+                val driverLng = snapshot.getDouble("current_Lng") ?: 0.0
+                val driverLocation = LatLng(driverLat, driverLng)
+                currentMarkerInTrip?.remove()
+                currentMarkerInTrip = addMotoMarker(driverLocation)
+                mGoogleMap?.moveCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.Builder().target(driverLocation).zoom(15f).build()
+                    )
+                )
+            } else {
+                Log.d("DriverLocationListener", "Document does not exist.")
+            }
+        }
+    }
+
     private fun notifyEachDriver(
         matchingDocs: MutableList<DocumentSnapshot>,
         tripID: String
@@ -1074,6 +1566,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("DefaultLocale")
+    private fun calculateRateAverage(document: DocumentSnapshot): Double {
+        val rateStarNum = document.getDouble("rateStarNum") ?: 0.0
+        val rateAverage = if (rateStarNum != 0.0) {
+            document.getDouble("totalStar")?.div(rateStarNum) ?: 5.0
+        } else {
+            5.0
+        }
+        val formattedRate = String.format("%.1f", rateAverage).replace(",", ".")
+        return formattedRate.toDoubleOrNull() ?: 5.0
+    }
+
     private fun resetAfterCancelBooking(isDeleteTrip: Boolean = true) {
         resetValue()
         bottomSheetBookingInfo.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -1090,13 +1594,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         )
         if (isDeleteTrip) {
             bottomSheetBookingFail.state = BottomSheetBehavior.STATE_EXPANDED
+            tripsCollection.document(tripID).collection("Reason").document(reasonID).delete()
             tripsCollection.document(tripID).delete()
+            this.tripID = ""
+            reasonID = ""
         }
         listenerTrip?.remove()
         listenerDriver?.remove()
-        this.tripID = ""
         driverID = ""
         exceptDriverID = ""
+        driverFeedbackId = ""
+        isRating = false
+        isReceiptOpened = false
+        isDriverConfirm = false
     }
-
 }

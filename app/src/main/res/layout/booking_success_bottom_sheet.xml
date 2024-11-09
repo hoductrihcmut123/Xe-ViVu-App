@@ -147,15 +147,15 @@
             android:id="@+id/cancelWhileArrivingButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/_20sdp"
+            android:layout_marginStart="@dimen/_45sdp"
+            android:layout_weight="1"
             android:backgroundTint="@color/white"
             app:borderWidth="0dp"
             app:elevation="@dimen/_5sdp"
             app:fabCustomSize="@dimen/_72sdp"
             app:maxImageSize="@dimen/_35sdp"
-            app:srcCompat="@drawable/close_icon"
-            android:layout_marginVertical="@dimen/_20sdp"
-            android:layout_marginStart="@dimen/_45sdp"
-            android:layout_weight="1" />
+            app:srcCompat="@drawable/close_icon" />
 
     </LinearLayout>
 </LinearLayout>

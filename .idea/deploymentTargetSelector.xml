@@ -7,7 +7,7 @@
       </SelectionState>
       <SelectionState runConfigName="Xe Vivu App.Xe_Vivu_App.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-31T04:13:49.481596Z">
+        <DropdownSelection timestamp="2024-11-08T18:20:39.035534Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=OJKJJNE64LOZ6HPN" />

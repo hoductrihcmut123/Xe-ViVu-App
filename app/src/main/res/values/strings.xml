@@ -97,4 +97,40 @@
     <string name="DriverReport">Báo cáo tài xế</string>
     <string name="Excellent">Tuyệt vời</string>
     <string name="WriteFeedback">\u00A0Viết đánh giá</string>
+    <string name="TravelDistance">Quãng đường di chuyển: %1$d km</string>
+    <string name="Send">Gửi</string>
+    <string name="CancellationTitle">Vui lòng chọn lý do mà bạn Hủy đặt chuyến xe</string>
+    <string name="ReportTitle">Bạn muốn Tố cáo tài xế vì lý do gì ?</string>
+    <string name="ReceiptTitle">Chuyến đi của bạn đã kết thúc</string>
+    <string name="ReceiptTime">Thời gian: %1$d phút</string>
+    <string name="Complete">Hoàn thành</string>
+    <string name="PleaseChooseReason">Bạn vui lòng chọn lý do nhé !</string>
+    <string name="OnTheTrip">Đang trong chuyến đi</string>
+    <string name="SendRating">Gửi đánh giá</string>
+    <string name="SendReport">Gửi tố cáo</string>
+    <string name="RatingSubmitted">Đã gửi đánh giá</string>
+    <string name="ReportSubmitted">Đã gửi tố cáo</string>
+    <string name="PleaseRate">Bạn vui lòng chọn số Sao đánh giá nhé !</string>
+    <string name="YouHaveRated">Bạn chỉ có thể đánh giá một lần trong một chuyến đi</string>
+    <string name="PleaseTurnOnLocation">Bạn vui lòng bật Vị trí để sử dụng các tính năng của ứng dụng nhé!</string>
+    <string name="WaitSecondToDetermineLocation">Bạn vui lòng đợi giây lát để thiết bị xác định vị trí nhé!</string>
+    <string name="ThankYou">Cảm ơn bạn đã lựa chọn ứng dụng Xe !</string>
+    <string name="DriverConfirmCompleted">Tài xế đã xác nhận hoàn tất chuyến đi. Chúc mừng bạn được cộng thêm %1$d điểm!</string>
+    <string name="WaitDriverConfirm">Bạn vui lòng đợi tài xế Xác nhận trước khi hoàn tất chuyến đi nhé</string>
+
+
+    // Passenger Cancellation reasons
+    <string name="CancellationReason1">Tôi đợi quá lâu</string>
+    <string name="CancellationReason2">Tôi không thể liên hệ được với tài xế</string>
+    <string name="CancellationReason3">Tài xế/phương tiện khác với thông tin</string>
+    <string name="CancellationReason4">Địa chỉ đón không đúng</string>
+    <string name="CancellationReason5">Lý do khác</string>
+
+    // Passenger Report reasons
+    <string name="ReportReason1">Sử dụng ngôn từ không phù hợp</string>
+    <string name="ReportReason2">Có hành vi không đúng</string>
+    <string name="ReportReason3">Tài xế/phương tiện khác với thông tin</string>
+    <string name="ReportReason4">Chạy ẩu</string>
+    <string name="ReportReason5">Lý do khác</string>
+
 </resources>

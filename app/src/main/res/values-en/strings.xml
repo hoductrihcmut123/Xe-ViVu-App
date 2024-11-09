@@ -97,4 +97,39 @@
     <string name="DriverReport">Driver report</string>
     <string name="Excellent">Excellent</string>
     <string name="WriteFeedback">\u00A0Write feedback</string>
+    <string name="TravelDistance">Travel distance: %1$d km</string>
+    <string name="Send">Send</string>
+    <string name="CancellationTitle">Please select the reason for canceling your trip booking</string>
+    <string name="ReportTitle">Why do you want to report the driver?</string>
+    <string name="ReceiptTitle">Your trip has ended</string>
+    <string name="ReceiptTime">Time: %1$d minute</string>
+    <string name="Complete">Complete</string>
+    <string name="PleaseChooseReason">Please choose a reason!</string>
+    <string name="OnTheTrip">On the trip</string>
+    <string name="SendRating">Send rating</string>
+    <string name="SendReport">Send report</string>
+    <string name="RatingSubmitted">Rating submitted</string>
+    <string name="ReportSubmitted">Report submitted</string>
+    <string name="PleaseRate">Please select the number of stars to rate!</string>
+    <string name="YouHaveRated">You can only rate once per trip.</string>
+    <string name="PleaseTurnOnLocation">Please turn on Location to use the app\'s features!</string>
+    <string name="WaitSecondToDetermineLocation">Please wait a moment for the device to determine your location!</string>
+    <string name="ThankYou">Thank you for choosing the Xe application!</string>
+    <string name="DriverConfirmCompleted">The driver has confirmed the trip is complete. Congratulations, you have earned %1$d points!</string>
+    <string name="WaitDriverConfirm">Please wait for the driver to confirm before completing the trip</string>
+
+    // Passenger Cancellation reasons
+    <string name="CancellationReason1">I waited too long</string>
+    <string name="CancellationReason2">I can\'t contact the driver</string>
+    <string name="CancellationReason3">Driver/vehicle other than information</string>
+    <string name="CancellationReason4">Incorrect pick up address</string>
+    <string name="CancellationReason5">Other reasons</string>
+
+    // Passenger Report reasons
+    <string name="ReportReason1">Using inappropriate language</string>
+    <string name="ReportReason2">There is improper behavior</string>
+    <string name="ReportReason3">Driver/vehicle other than information</string>
+    <string name="ReportReason4">Driving carelessly</string>
+    <string name="ReportReason5">Other reasons</string>
+
 </resources>

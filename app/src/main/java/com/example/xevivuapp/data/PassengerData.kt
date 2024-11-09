@@ -9,5 +9,7 @@ data class PassengerData(
     val mobile_No :String? = null,
     val point :Int? = null,
     val password :String? = null,
-    val avatar_Link :String? = null
+    val avatar_Link :String? = null,
+    val reportPassengerNum :Int? = null,
+    val bookingTripNum :Int? = null,
 )

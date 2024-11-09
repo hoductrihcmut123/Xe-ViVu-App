@@ -146,7 +146,9 @@ class VerifyPhoneNumActivity : AppCompatActivity() {
                         firstname = signupFirstname,
                         mobile_No = signupPhoneNumber,
                         password = signupPassword,
-                        point = 0
+                        point = 0,
+                        reportPassengerNum = 0,
+                        bookingTripNum = 0
                     )
                     passengersCollection.document(userid).set(passengerData)
                         .addOnSuccessListener {
