@@ -117,7 +117,22 @@
     <string name="ThankYou">Cảm ơn bạn đã lựa chọn ứng dụng Xe !</string>
     <string name="DriverConfirmCompleted">Tài xế đã xác nhận hoàn tất chuyến đi. Chúc mừng bạn được cộng thêm %1$d điểm!</string>
     <string name="WaitDriverConfirm">Bạn vui lòng đợi tài xế Xác nhận trước khi hoàn tất chuyến đi nhé</string>
-
+    <string name="DriverInfo">Thông tin tài xế</string>
+    <string name="TotalKm">%1$d Km</string>
+    <string name="TotalTrip">%1$d Chuyến</string>
+    <string name="TitleVehicleType">Loại phương tiện</string>
+    <string name="TitleLicensePlate">Biển số phương tiện</string>
+    <string name="TitleGender">Giới tính</string>
+    <string name="TitleDetailedReviews">Các đánh giá chi tiết:</string>
+    <string name="PassengerItemId">Người dùng: *****%1$s</string>
+    <string name="Report">Báo xấu</string>
+    <string name="ReportContent">Nội dung báo xấu</string>
+    <string name="Male">Nam</string>
+    <string name="Female">Nữ</string>
+    <string name="AverageNumberOfStars">Số sao trung bình</string>
+    <string name="TotalDistanceTraveled">Tổng quãng đường đi được</string>
+    <string name="NumberOfCompletedTrips">Số cuốc xe đã hoàn thành</string>
+    <string name="HaveNoReview">Hiện chưa có đánh giá nào</string>
 
     // Passenger Cancellation reasons
     <string name="CancellationReason1">Tôi đợi quá lâu</string>

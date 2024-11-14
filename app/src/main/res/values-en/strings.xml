@@ -117,6 +117,22 @@
     <string name="ThankYou">Thank you for choosing the Xe application!</string>
     <string name="DriverConfirmCompleted">The driver has confirmed the trip is complete. Congratulations, you have earned %1$d points!</string>
     <string name="WaitDriverConfirm">Please wait for the driver to confirm before completing the trip</string>
+    <string name="DriverInfo">Driver information</string>
+    <string name="TotalKm">%1$d Km</string>
+    <string name="TotalTrip">%1$d Trips</string>
+    <string name="TitleVehicleType">Vehicle Type</string>
+    <string name="TitleLicensePlate">Vehicle license plate</string>
+    <string name="TitleGender">Gender</string>
+    <string name="TitleDetailedReviews">Detailed reviews:</string>
+    <string name="PassengerItemId">User: *****%1$s</string>
+    <string name="Report">Report</string>
+    <string name="ReportContent">Report content</string>
+    <string name="Male">Male</string>
+    <string name="Female">Female</string>
+    <string name="AverageNumberOfStars">Average number of stars</string>
+    <string name="TotalDistanceTraveled">Total distance traveled</string>
+    <string name="NumberOfCompletedTrips">Number of completed trips</string>
+    <string name="HaveNoReview">There are no reviews yet</string>
 
     // Passenger Cancellation reasons
     <string name="CancellationReason1">I waited too long</string>
