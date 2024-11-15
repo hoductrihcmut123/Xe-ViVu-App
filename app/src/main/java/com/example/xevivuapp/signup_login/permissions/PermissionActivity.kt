@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.xevivuapp.HomeActivity
+import com.example.xevivuapp.features.booking.HomeActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.databinding.ActivityPermissionBinding
 

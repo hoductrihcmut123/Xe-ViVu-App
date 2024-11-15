@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.example.xevivuapp.HomeActivity
+import com.example.xevivuapp.features.booking.HomeActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.databinding.ActivitySignupBinding
 import com.example.xevivuapp.signup_login.login.LoginActivity

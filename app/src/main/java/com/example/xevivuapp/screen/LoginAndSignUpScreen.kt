@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.example.xevivuapp.HomeActivity
+import com.example.xevivuapp.features.booking.HomeActivity
 import com.example.xevivuapp.signup_login.login.LoginActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.signup_login.signup.SignupActivity

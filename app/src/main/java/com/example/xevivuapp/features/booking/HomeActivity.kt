@@ -1,4 +1,4 @@
-package com.example.xevivuapp
+package com.example.xevivuapp.features.booking
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -24,6 +24,9 @@ import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.example.xevivuapp.BuildConfig
+import com.example.xevivuapp.MainActivity
+import com.example.xevivuapp.R
 import com.example.xevivuapp.common.adapter.DriverFeedbackAdapter
 import com.example.xevivuapp.common.utils.Constants
 import com.example.xevivuapp.common.utils.Constants.DESIRED_NUM_OF_SPINS
@@ -45,6 +48,11 @@ import com.example.xevivuapp.data.DriverFeedback
 import com.example.xevivuapp.data.ReasonData
 import com.example.xevivuapp.data.TripData
 import com.example.xevivuapp.databinding.ActivityHomeBinding
+import com.example.xevivuapp.features.menu.personal_info.PersonalInfoActivity
+import com.example.xevivuapp.features.menu.points.PointActivity
+import com.example.xevivuapp.features.menu.setting.SettingActivity
+import com.example.xevivuapp.features.menu.support.SupportActivity
+import com.example.xevivuapp.features.menu.trip_history.TripHistoryActivity
 import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -74,7 +82,10 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.sidesheet.SideSheetBehavior
+import com.google.android.material.sidesheet.SideSheetCallback
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -135,6 +146,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetReceipt: BottomSheetBehavior<View>
     private lateinit var bottomSheetDriverPersonalInfo: BottomSheetBehavior<View>
 
+    private lateinit var sideSheetMenu: SideSheetBehavior<View>
+
     private var listenerTrip: ListenerRegistration? = null
     private var listenerDriver: ListenerRegistration? = null
 
@@ -163,7 +176,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -304,6 +316,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         bottomSheetDriverPersonalInfo.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetDriverPersonalInfo.isDraggable = false
 
+        // Set up sideSheetMenu
+        sideSheetMenu = SideSheetBehavior.from(findViewById(R.id.sideSheetMenu))
+        sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+        sideSheetMenu.isDraggable = true
+
         // Set up feedback adapter
         binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.adapter = driverFeedbackAdapter
 
@@ -375,11 +392,76 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.menuButton.setOnClickListener {
-            if (currentUser != null) {
-                auth.signOut()
+            binding.searchView.isVisible = false
+            binding.dimOverlay.isVisible = true
+            binding.sideSheetMenu.tvMenuItem1.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.yellow
+                )
+            )
+            sideSheetMenu.state = SideSheetBehavior.STATE_EXPANDED
+        }
+
+        val sideSheetCallback = object : SideSheetCallback() {
+            override fun onStateChanged(sideSheet: View, newState: Int) {}
+
+            override fun onSlide(sideSheet: View, slideOffset: Float) {
+                binding.dimOverlay.alpha = (slideOffset * 1.5).toFloat()
+                if (slideOffset == 0f) {
+                    binding.dimOverlay.isVisible = false
+                    binding.searchView.isVisible = true
+                }
             }
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+        }
+        sideSheetMenu.addCallback(sideSheetCallback)
+
+        with(binding.sideSheetMenu) {
+            sideSheetMenuItem2.setOnClickListener {
+                sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+                val intent = Intent(this@HomeActivity, PersonalInfoActivity::class.java)
+                intent.putExtra("Passenger_ID", passengerID)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            }
+            sideSheetMenuItem3.setOnClickListener {
+                sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+                val intent = Intent(this@HomeActivity, TripHistoryActivity::class.java)
+                intent.putExtra("Passenger_ID", passengerID)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            }
+            sideSheetMenuItem4.setOnClickListener {
+                sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+                val intent = Intent(this@HomeActivity, PointActivity::class.java)
+                intent.putExtra("Passenger_ID", passengerID)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            }
+            sideSheetMenuItem5.setOnClickListener {
+                Toast.makeText(
+                    this@HomeActivity,
+                    getString(R.string.FeatureInDevelop),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            sideSheetMenuItem6.setOnClickListener {
+                sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+                val intent = Intent(this@HomeActivity, SettingActivity::class.java)
+                intent.putExtra("Passenger_ID", passengerID)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            }
+            sideSheetMenuItem7.setOnClickListener {
+                sideSheetMenu.state = SideSheetBehavior.STATE_HIDDEN
+                val intent = Intent(this@HomeActivity, SupportActivity::class.java)
+                intent.putExtra("Passenger_ID", passengerID)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            }
+            sideSheetMenuItem8.setOnClickListener {
+                logout(currentUser)
+            }
         }
 
         with(binding.bottomSheetVehicleType) {
@@ -545,10 +627,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     .addOnSuccessListener { documents ->
                         if (documents.isEmpty) {
                             binding.bottomSheetDriverPersonalInfo.tvNotHaveReview.isVisible = true
-                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible = false
+                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible =
+                                false
                         } else {
                             binding.bottomSheetDriverPersonalInfo.tvNotHaveReview.isVisible = false
-                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible = true
+                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible =
+                                true
                         }
                         driverFeedbackAdapter.updateData(documents.toObjects(DriverFeedback::class.java))
                         binding.driverFoundNotification.isVisible = false
@@ -649,10 +733,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     .addOnSuccessListener { documents ->
                         if (documents.isEmpty) {
                             binding.bottomSheetDriverPersonalInfo.tvNotHaveReview.isVisible = true
-                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible = false
+                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible =
+                                false
                         } else {
                             binding.bottomSheetDriverPersonalInfo.tvNotHaveReview.isVisible = false
-                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible = true
+                            binding.bottomSheetDriverPersonalInfo.recyclerViewFeedback.isVisible =
+                                true
                         }
                         driverFeedbackAdapter.updateData(documents.toObjects(DriverFeedback::class.java))
                         isFromBottomSheetOnGoing = true
@@ -1758,6 +1844,22 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         val formattedRate = String.format("%.1f", rateAverage).replace(",", ".")
         return formattedRate.toDoubleOrNull() ?: 5.0
+    }
+
+    @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
+    private fun logout(currentUser: FirebaseUser?) {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.LogoutTitle))
+            .setMessage(getString(R.string.AreYouSureLogout))
+            .setNegativeButton(getString(R.string.Logout)) { _, _ ->
+                if (currentUser != null) {
+                    auth.signOut()
+                }
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+            .setPositiveButton(getString(R.string.Cancel), null)
+            .show()
     }
 
     private fun resetAfterCancelBooking(isDeleteTrip: Boolean = true) {

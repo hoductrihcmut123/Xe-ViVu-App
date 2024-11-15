@@ -133,6 +133,11 @@
     <string name="TotalDistanceTraveled">Tổng quãng đường đi được</string>
     <string name="NumberOfCompletedTrips">Số cuốc xe đã hoàn thành</string>
     <string name="HaveNoReview">Hiện chưa có đánh giá nào</string>
+    <string name="FeatureInDevelop">Tính năng đang trong quá trình phát triển. Bạn thông cảm nhé !</string>
+    <string name="LogoutTitle">Đăng xuất</string>
+    <string name="AreYouSureLogout">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không ?</string>
+    <string name="Logout">ĐĂNG XUẤT</string>
+    <string name="Cancel">HUỶ</string>
 
     // Passenger Cancellation reasons
     <string name="CancellationReason1">Tôi đợi quá lâu</string>
@@ -147,5 +152,15 @@
     <string name="ReportReason3">Tài xế/phương tiện khác với thông tin</string>
     <string name="ReportReason4">Chạy ẩu</string>
     <string name="ReportReason5">Lý do khác</string>
+
+    // Menu items
+    <string name="MenuItem1">Đặt xe</string>
+    <string name="MenuItem2">Thông tin cá nhân</string>
+    <string name="MenuItem3">Lịch sử chuyến đi</string>
+    <string name="MenuItem4">Điểm &amp; Ưu đãi</string>
+    <string name="MenuItem5">Nhà xe dịch vụ</string>
+    <string name="MenuItem6">Cài đặt</string>
+    <string name="MenuItem7">Hỗ trợ</string>
+    <string name="MenuItem8"><u>Đăng xuất</u></string>
 
 </resources>

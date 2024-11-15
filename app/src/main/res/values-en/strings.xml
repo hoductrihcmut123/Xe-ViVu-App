@@ -133,6 +133,11 @@
     <string name="TotalDistanceTraveled">Total distance traveled</string>
     <string name="NumberOfCompletedTrips">Number of completed trips</string>
     <string name="HaveNoReview">There are no reviews yet</string>
+    <string name="FeatureInDevelop">Feature is in development. Thank you!</string>
+    <string name="LogoutTitle">Log out</string>
+    <string name="AreYouSureLogout">Are you sure you want to log out of your account?</string>
+    <string name="Logout">LOG OUT</string>
+    <string name="Cancel">CANCEL</string>
 
     // Passenger Cancellation reasons
     <string name="CancellationReason1">I waited too long</string>
@@ -147,5 +152,15 @@
     <string name="ReportReason3">Driver/vehicle other than information</string>
     <string name="ReportReason4">Driving carelessly</string>
     <string name="ReportReason5">Other reasons</string>
+
+    // Menu items
+    <string name="MenuItem1">Booking</string>
+    <string name="MenuItem2">Personal information</string>
+    <string name="MenuItem3">Trip history</string>
+    <string name="MenuItem4">Points &amp; Benefits</string>
+    <string name="MenuItem5">Service vehicle</string>
+    <string name="MenuItem6">Setting</string>
+    <string name="MenuItem7">Support</string>
+    <string name="MenuItem8"><u>Log out</u></string>
 
 </resources>
