@@ -132,6 +132,14 @@ class SettingActivity : AppCompatActivity() {
                 logout(currentUser)
             }
         }
+
+        binding.overlayView1.setOnClickListener {
+            Toast.makeText(this, getString(R.string.FeatureInDevelop), Toast.LENGTH_LONG).show()
+        }
+
+        binding.overlayView2.setOnClickListener {
+            Toast.makeText(this, getString(R.string.FeatureInDevelop), Toast.LENGTH_LONG).show()
+        }
     }
 
     @Deprecated("Deprecated in Java")

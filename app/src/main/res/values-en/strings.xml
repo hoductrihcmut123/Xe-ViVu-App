@@ -138,6 +138,51 @@
     <string name="AreYouSureLogout">Are you sure you want to log out of your account?</string>
     <string name="Logout">LOG OUT</string>
     <string name="Cancel">CANCEL</string>
+    <string name="FrequentlyAskedQuestions">Frequently Asked Questions</string>
+    <string name="RequestSupport">Request support</string>
+    <string name="AboutUs">About us</string>
+    <string name="Topic">+ Topic: “Developing a Car Booking Application System in Rural Areas” is a car booking application that helps users (especially in rural areas) to easily search for means of transportation. The topic is carried out in the subject “Major Project” in Semester 231 and the subject “Graduation Project” in Semester 241.</string>
+    <string name="Implementer">+ Performed by: Ho Duc Tri (Student ID 1912288)</string>
+    <string name="Account">Account</string>
+    <string name="Payment">Payment</string>
+    <string name="WebSupport">The support website is under development. Thank you!</string>
+    <string name="RequestDetail">Request support details</string>
+    <string name="TalkWithUs">Tell us</string>
+    <string name="WriteHere">Please leave a message here</string>
+    <string name="RequestSend">Request sent</string>
+    <string name="PleaseWriteContent">Please fill in the content!</string>
+    <string name="AccumulatedPoints">Accumulated points</string>
+    <string name="Coupon">Coupon code</string>
+    <string name="NotHaveCoupon">You don\'t have any coupon codes yet</string>
+    <string name="GenderPI">Gender</string>
+    <string name="CompleteTripPI">Total number of trips booked</string>
+    <string name="NumberBadReportsPI">Number of Bad Reports</string>
+    <string name="UpdatePI">Update personal information</string>
+    <string name="Update">Update</string>
+    <string name="UpdateFirstname">FIRSTNAME *</string>
+    <string name="UpdateLastname">LASTNAME *</string>
+    <string name="UpdateEmail">EMAIL ADDRESS</string>
+    <string name="UpdateGender">GENDER</string>
+    <string name="PleaseFillAllStarFields">Please do not leave fields marked with an asterisk (*) blank!</string>
+    <string name="UpdateSuccessfully">Update successfully</string>
+
+    // Setting items
+    <string name="SettingTitle1">System Notifications</string>
+    <string name="SettingContent1">To receive notifications, vibrations from the system when you start your trip</string>
+    <string name="SettingTitle2">Dark Mode</string>
+    <string name="SettingContent2">When turned on the app will switch to dark mode</string>
+
+    // Account FAQs
+    <string name="AccountItem1">Account locked</string>
+    <string name="AccountItem2">How to change phone number</string>
+    <string name="AccountItem3">Privacy Information</string>
+
+    // Payment FAQs
+    <string name="PaymentItem1">Payment methods</string>
+    <string name="PaymentItem2">Disclaimer</string>
+    <string name="PaymentItem3">Fees are too high</string>
+    <string name="PaymentItem4">Reference price</string>
+    <string name="PaymentItem5">Momo cannot pay</string>
 
     // Passenger Cancellation reasons
     <string name="CancellationReason1">I waited too long</string>

@@ -26,27 +26,163 @@
             app:srcCompat="@drawable/menu_icon"
             tools:ignore="SpeakableTextPresentCheck" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_15sdp"
-            android:layout_marginTop="@dimen/_20sdp"
-            android:backgroundTint="@color/white"
-            android:visibility="gone"
-            app:borderWidth="0dp"
-            app:elevation="@dimen/_10sdp"
-            app:fabCustomSize="@dimen/_42sdp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back_icon"
-            tools:ignore="SpeakableTextPresentCheck" />
-
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter_bold"
             android:gravity="center"
-            android:text="SettingActivity" />
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/_75sdp"
+            android:paddingTop="@dimen/_12sdp"
+            android:paddingBottom="@dimen/_6sdp"
+            android:text="@string/MenuItem6"
+            android:textColor="@color/text_color"
+            android:textSize="@dimen/_23ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:layout_marginTop="@dimen/_80sdp"
+            android:layout_marginHorizontal="@dimen/_25sdp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_40sdp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/_2sdp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSettingTitle1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="@string/SettingTitle1"
+                        android:textColor="@color/text_color"
+                        android:textSize="@dimen/_18ssp"
+                        android:layout_marginBottom="@dimen/_5sdp"/>
+
+                    <TextView
+                        android:id="@+id/tvSettingContent1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_medium"
+                        android:text="@string/SettingContent1"
+                        android:textColor="@color/sub_content"
+                        android:layout_marginEnd="@dimen/_15sdp"
+                        android:textSize="@dimen/_15ssp" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4.5"
+                    android:layout_gravity="center">
+
+                    <com.suke.widget.SwitchButton
+                        android:id="@+id/switchButton1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:sb_checked_color="@color/button_background"
+                        app:sb_background="@color/light_silver"
+                        app:sb_show_indicator="false"
+                        android:layout_gravity="center"/>
+
+                    <View
+                        android:id="@+id/overlayView1"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_45sdp"
+                        android:layout_marginVertical="@dimen/_13sdp"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="visible"/>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/_2sdp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSettingTitle2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="@string/SettingTitle2"
+                        android:textColor="@color/text_color"
+                        android:textSize="@dimen/_18ssp"
+                        android:layout_marginBottom="@dimen/_5sdp"/>
+
+                    <TextView
+                        android:id="@+id/tvSettingContent2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_medium"
+                        android:text="@string/SettingContent2"
+                        android:textColor="@color/sub_content"
+                        android:layout_marginEnd="@dimen/_15sdp"
+                        android:textSize="@dimen/_15ssp" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4.5"
+                    android:layout_gravity="center">
+
+                    <com.suke.widget.SwitchButton
+                        android:id="@+id/switchButton2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:sb_checked_color="@color/button_background"
+                        app:sb_background="@color/light_silver"
+                        app:sb_show_indicator="false"
+                        android:layout_gravity="center"/>
+
+                    <View
+                        android:id="@+id/overlayView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_45sdp"
+                        android:layout_marginVertical="@dimen/_13sdp"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="visible"/>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

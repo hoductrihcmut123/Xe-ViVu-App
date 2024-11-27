@@ -21,25 +21,37 @@
         android:theme="@style/Theme.CustomSplashScreenTheme"
         tools:targetApi="31">
         <activity
-            android:name=".features.menu.trip_history.TripHistoryActivity"
+            android:name=".features.menu.personal_info.UpdatePersonalInfoActivity"
             android:exported="false"
             android:theme="@style/Theme.XeVivuApp"/>
+        <activity
+            android:name=".features.menu.support.RequestSupportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.XeVivuApp" />
+        <activity
+            android:name=".features.menu.support.FAQActivity"
+            android:exported="false"
+            android:theme="@style/Theme.XeVivuApp" />
+        <activity
+            android:name=".features.menu.trip_history.TripHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.support.SupportActivity"
             android:exported="false"
-            android:theme="@style/Theme.XeVivuApp"/>
+            android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.setting.SettingActivity"
             android:exported="false"
-            android:theme="@style/Theme.XeVivuApp"/>
+            android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.points.PointActivity"
             android:exported="false"
-            android:theme="@style/Theme.XeVivuApp"/>
+            android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.personal_info.PersonalInfoActivity"
             android:exported="false"
-            android:theme="@style/Theme.XeVivuApp"/>
+            android:theme="@style/Theme.XeVivuApp" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

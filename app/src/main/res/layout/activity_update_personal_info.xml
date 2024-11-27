@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".features.menu.personal_info.UpdatePersonalInfoActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:backgroundTint="@color/white"
+            app:borderWidth="0dp"
+            app:elevation="@dimen/_10sdp"
+            app:fabCustomSize="@dimen/_42sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/back_icon"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageView
+            android:id="@+id/ivEditAvatar"
+            android:layout_width="@dimen/_135sdp"
+            android:layout_height="@dimen/_135sdp"
+            android:layout_marginTop="@dimen/_60sdp"
+            android:src="@drawable/edit_avatar_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.55"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/titleLastname"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_45sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:fontFamily="@font/inter"
+            android:text="@string/UpdateLastname"
+            android:textColor="@color/text_color"
+            android:textFontWeight="700"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintBottom_toTopOf="@id/lastnameValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivEditAvatar" />
+
+        <EditText
+            android:id="@+id/lastnameValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_25sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:background="@drawable/edittext_border"
+            android:padding="@dimen/_12sdp"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/edittext_background"
+            app:layout_constraintBottom_toTopOf="@id/titleFirstname"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titleLastname" />
+
+        <TextView
+            android:id="@+id/titleFirstname"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:fontFamily="@font/inter"
+            android:text="@string/UpdateFirstname"
+            android:textColor="@color/text_color"
+            android:textFontWeight="700"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintBottom_toTopOf="@id/firstnameValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastnameValue" />
+
+        <EditText
+            android:id="@+id/firstnameValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_25sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:background="@drawable/edittext_border"
+            android:padding="@dimen/_12sdp"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/edittext_background"
+            app:layout_constraintBottom_toTopOf="@id/titleEmail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titleFirstname" />
+
+        <TextView
+            android:id="@+id/titleEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:fontFamily="@font/inter"
+            android:text="@string/UpdateEmail"
+            android:textColor="@color/text_color"
+            android:textFontWeight="700"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintBottom_toTopOf="@id/emailValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/firstnameValue" />
+
+        <EditText
+            android:id="@+id/emailValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_25sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:background="@drawable/edittext_border"
+            android:padding="@dimen/_12sdp"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/edittext_background"
+            app:layout_constraintBottom_toTopOf="@id/titleGender"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titleEmail" />
+
+        <TextView
+            android:id="@+id/titleGender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_25sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:fontFamily="@font/inter"
+            android:text="@string/UpdateGender"
+            android:textColor="@color/text_color"
+            android:textFontWeight="700"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintBottom_toTopOf="@id/radioGroupGender"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailValue" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupGender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titleGender">
+
+            <RadioButton
+                android:id="@+id/radioMale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/Male" />
+
+            <RadioButton
+                android:id="@+id/radioFemale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/Female" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_25sdp"
+            android:layout_marginTop="@dimen/_60sdp"
+            android:layout_marginEnd="@dimen/_25sdp"
+            android:background="@drawable/button_border"
+            android:backgroundTint="@color/button_background"
+            android:fontFamily="@font/inter"
+            android:padding="@dimen/_16sdp"
+            android:stateListAnimator="@null"
+            android:text="@string/Update"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textFontWeight="700"
+            android:textSize="@dimen/_22ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radioGroupGender" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

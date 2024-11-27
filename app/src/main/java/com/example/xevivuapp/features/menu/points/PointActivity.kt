@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.example.xevivuapp.MainActivity
 import com.example.xevivuapp.R
 import com.example.xevivuapp.databinding.ActivityPointBinding
@@ -24,8 +25,12 @@ import com.google.android.material.sidesheet.SideSheetCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.taosif7.android.ringchartlib.RingChart
+import com.taosif7.android.ringchartlib.models.RingChartData
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 
 class PointActivity : AppCompatActivity() {
 
@@ -33,12 +38,7 @@ class PointActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var passengersCollection: CollectionReference
-    private lateinit var driversCollection: CollectionReference
-    private lateinit var tripsCollection: CollectionReference
     private var passengerID: String = ""
-    private var driverID: String = ""
-    private var tripID: String = ""
-    private var reasonID: String = ""
 
     private lateinit var sideSheetMenu: SideSheetBehavior<View>
 
@@ -50,8 +50,6 @@ class PointActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
         passengersCollection = firestore.collection("Passengers")
-        driversCollection = firestore.collection("Drivers")
-        tripsCollection = firestore.collection("Trips")
         passengerID = intent.getStringExtra("Passenger_ID").toString()
 
         // Set up sideSheetMenu
@@ -132,6 +130,42 @@ class PointActivity : AppCompatActivity() {
                 logout(currentUser)
             }
         }
+
+        setUpPoint()
+    }
+
+    private fun setUpPoint() {
+        // Get data from Firestore
+        passengersCollection.document(passengerID).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val point = document.getDouble("point") ?: 0
+                binding.tvPoint.setDecimalFormat(DecimalFormat("###,###,###"))
+                    .setAnimationDuration(2800).countAnimation(0, point.toInt())
+            }
+        }
+
+        // Set up Ring Chart Point
+        binding.pointRingChart.setLayoutMode(RingChart.renderMode.MODE_OVERLAP)
+        val blue200 = RingChartData(0.2f, ContextCompat.getColor(this, R.color.blue_200), "")
+        val gray = RingChartData(0.4f, ContextCompat.getColor(this, R.color.text_color), "")
+        val red = RingChartData(0.6f, ContextCompat.getColor(this, R.color.refuse_background), "")
+        val blue = RingChartData(0.8f, ContextCompat.getColor(this, R.color.button_background), "")
+        val dataListPoint: ArrayList<RingChartData?> = object : ArrayList<RingChartData?>() {
+            init {
+                add(blue200)
+                add(gray)
+                add(red)
+                add(blue)
+            }
+        }
+        binding.pointRingChart.setData(dataListPoint)
+        binding.pointRingChart.startAnimateLoading()
+
+        // Stop animation after 3
+        lifecycleScope.launch {
+            delay(3000)
+            binding.pointRingChart.stopAnimateLoading()
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -149,18 +183,6 @@ class PointActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         auth.signOut()
-    }
-
-    @SuppressLint("DefaultLocale")
-    private fun calculateRateAverage(document: DocumentSnapshot): Double {
-        val rateStarNum = document.getDouble("rateStarNum") ?: 0.0
-        val rateAverage = if (rateStarNum != 0.0) {
-            document.getDouble("totalStar")?.div(rateStarNum) ?: 5.0
-        } else {
-            5.0
-        }
-        val formattedRate = String.format("%.1f", rateAverage).replace(",", ".")
-        return formattedRate.toDoubleOrNull() ?: 5.0
     }
 
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
