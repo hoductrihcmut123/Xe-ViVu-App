@@ -53,11 +53,11 @@ fun LoginAndSignUpScreen() {
             .background(Color.White),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(if (screenHeight < 725.dp) 50.sdp else 150.sdp) )
+            Spacer(modifier = Modifier.height(if (screenHeight < 775.dp) 70.sdp else 150.sdp) )
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = if (screenHeight < 725.dp) 50.sdp else 75.sdp),
+                    .padding(bottom = if (screenHeight < 775.dp) 50.sdp else 75.sdp),
                 painter = painterResource(id = R.drawable.login_and_signup),
                 contentDescription = "Login_and_Signup Image"
             )
@@ -86,7 +86,7 @@ fun LoginAndSignUpScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 40.sdp)
-                    .padding(top = if (screenHeight < 725.dp) 50.sdp else 75.sdp, bottom = 25.sdp),
+                    .padding(top = if (screenHeight < 775.dp) 50.sdp else 75.sdp, bottom = 25.sdp),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.Center
             ) {

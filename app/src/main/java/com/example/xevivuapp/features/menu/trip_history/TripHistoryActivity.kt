@@ -3,6 +3,7 @@ package com.example.xevivuapp.features.menu.trip_history
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -12,6 +13,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.example.xevivuapp.MainActivity
 import com.example.xevivuapp.R
+import com.example.xevivuapp.common.adapter.TripHistoryAdapter
+import com.example.xevivuapp.common.utils.Utils.toDate
+import com.example.xevivuapp.data.TripDataDto
 import com.example.xevivuapp.databinding.ActivityTripHistoryBinding
 import com.example.xevivuapp.features.booking.HomeActivity
 import com.example.xevivuapp.features.menu.personal_info.PersonalInfoActivity
@@ -24,7 +28,6 @@ import com.google.android.material.sidesheet.SideSheetCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
 class TripHistoryActivity : AppCompatActivity() {
@@ -32,15 +35,16 @@ class TripHistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTripHistoryBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var passengersCollection: CollectionReference
-    private lateinit var driversCollection: CollectionReference
     private lateinit var tripsCollection: CollectionReference
     private var passengerID: String = ""
-    private var driverID: String = ""
-    private var tripID: String = ""
-    private var reasonID: String = ""
 
     private lateinit var sideSheetMenu: SideSheetBehavior<View>
+
+    // Trip history
+    private var tripHistoryList = mutableListOf<TripDataDto>()
+
+    // Adapter
+    private val tripHistoryAdapter: TripHistoryAdapter by lazy { TripHistoryAdapter(this) }
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,11 +52,17 @@ class TripHistoryActivity : AppCompatActivity() {
         binding = ActivityTripHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val screenHeight = displayMetrics.heightPixels / resources.displayMetrics.density
+        settingRecyclerViewHeight(screenHeight)
+
         firestore = FirebaseFirestore.getInstance()
-        passengersCollection = firestore.collection("Passengers")
-        driversCollection = firestore.collection("Drivers")
         tripsCollection = firestore.collection("Trips")
         passengerID = intent.getStringExtra("Passenger_ID").toString()
+
+        // Set up feedback adapter
+        binding.recyclerViewTripHistory.adapter = tripHistoryAdapter
 
         // Set up sideSheetMenu
         sideSheetMenu = SideSheetBehavior.from(findViewById(R.id.sideSheetMenu))
@@ -132,6 +142,24 @@ class TripHistoryActivity : AppCompatActivity() {
                 logout(currentUser)
             }
         }
+
+        setUpData()
+    }
+
+    private fun setUpData() {
+        tripsCollection.whereEqualTo("passenger_ID", passengerID).get()
+            .addOnSuccessListener { documents ->
+                tripHistoryList = documents.toObjects(TripDataDto::class.java)
+                val sortedTripHistoryList = tripHistoryList.sortedByDescending { it.bookingTime?.toDate() }
+                tripHistoryAdapter.updateData(sortedTripHistoryList)
+            }
+    }
+
+    private fun settingRecyclerViewHeight(screenHeight: Float) {
+        if (screenHeight < 700) {
+            binding.recyclerViewTripHistory.layoutParams.height =
+                (575 * resources.displayMetrics.density).toInt()
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -149,18 +177,6 @@ class TripHistoryActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         auth.signOut()
-    }
-
-    @SuppressLint("DefaultLocale")
-    private fun calculateRateAverage(document: DocumentSnapshot): Double {
-        val rateStarNum = document.getDouble("rateStarNum") ?: 0.0
-        val rateAverage = if (rateStarNum != 0.0) {
-            document.getDouble("totalStar")?.div(rateStarNum) ?: 5.0
-        } else {
-            5.0
-        }
-        val formattedRate = String.format("%.1f", rateAverage).replace(",", ".")
-        return formattedRate.toDoubleOrNull() ?: 5.0
     }
 
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)

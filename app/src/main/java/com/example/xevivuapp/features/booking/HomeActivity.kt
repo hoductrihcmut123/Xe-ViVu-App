@@ -2,6 +2,9 @@ package com.example.xevivuapp.features.booking
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -1000,6 +1003,17 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         with(binding.bottomSheetReceipt) {
+            copyMomoClipboardButton.setOnClickListener {
+                val clipboard =
+                    this@HomeActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Copied Text", tvMomoPhoneReceipt.text)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(
+                    this@HomeActivity,
+                    getString(R.string.CopiedToClipboard),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             ratingButtonReceipt.setOnClickListener {
                 if (!isRating) {
                     bottomSheetReceipt.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -1728,6 +1742,22 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                         binding.bottomSheetReceipt.tvPriceReceipt.text =
                             document.getDouble("price")?.formatCurrency()
+
+                        driversCollection.document(driverID).get()
+                            .addOnSuccessListener { driverDocument ->
+                                if (document.exists()) {
+                                    if (driverDocument.getString("momoPhone")
+                                            ?.isNotEmpty() == true && tripPaymentType == Constants.MOMO
+                                    ) {
+                                        binding.bottomSheetReceipt.tvMomoPhoneReceipt.text =
+                                            driverDocument.getString("momoPhone")
+                                        binding.bottomSheetReceipt.momoPhoneLayout.isVisible = true
+                                    } else {
+                                        binding.bottomSheetReceipt.momoPhoneLayout.isVisible = false
+                                    }
+                                }
+                            }
+
                         binding.bottomSheetReceipt.tvBookingTimeReceipt.text =
                             document.getString("bookingTime")
                         binding.bottomSheetReceipt.tvTravelDistanceReceipt.text = getString(

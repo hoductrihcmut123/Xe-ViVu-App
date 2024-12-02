@@ -165,6 +165,57 @@
     <string name="UpdateGender">GIỚI TÍNH</string>
     <string name="PleaseFillAllStarFields">Bạn vui lòng không bỏ trống những mục có dấu (*) nhé !</string>
     <string name="UpdateSuccessfully">Cập nhật thành công</string>
+    <string name="CopiedToClipboard">Đã sao chép vào bộ nhớ</string>
+    <string name="MonthStatistics">Tháng %1$s</string>
+    <string name="TotalRequestStatistics">Tổng số yêu cầu: %1$d</string>
+    <string name="TripSuccessStatistics">Số chuyến đã chạy: %1$d</string>
+    <string name="TotalCancelStatistics">Số chuyến hủy: %1$d</string>
+    <string name="DriverCancelStatistics">Bạn đã huỷ: %1$d</string>
+    <string name="PassengerCancelStatistics">Hành khách huỷ: %1$d</string>
+    <string name="TotalDistanceStatistics">Tổng quãng đường: %1$.1f km</string>
+    <string name="TotalDurationStatistics">Tổng thời gian chạy uớc lượng: %1$d phút</string>
+    <string name="TotalIncomeStatistics">Tổng thu nhập ước lượng: %1$s</string>
+    <string name="DayStatistics">Ngày %1$s</string>
+    <string name="Canceled">BỊ HUỶ</string>
+    <string name="TripDetail">Chi tiết chuyến đi</string>
+    <string name="StatusDetail">Trạng thái :</string>
+    <string name="ExactTimeDetail">Thời gian thực tế: %1$d phút</string>
+    <string name="PassengerVote">Đánh giá của bạn</string>
+    <string name="Detail">Chi tiết:</string>
+    <string name="DriverCancelReason">Lý do tài xế huỷ:</string>
+    <string name="PassengerCancelReason">Lý do khách huỷ:</string>
+    <string name="DriverCancelEmergencyReason">Lý do tài xế huỷ khẩn cấp:</string>
+    <string name="ReportIssue">Báo cáo vấn đề</string>
+    <string name="ReportIssueTitle">Vấn đề bạn gặp phải trong chuyến đi này là gì ?</string>
+    <string name="EmptyStar">__</string>
+    <string name="ReportWithUs">Báo cáo với chúng tôi</string>
+    <string name="ReportIssueSuccess">Gửi báo cáo thành công</string>
+    <string name="ReportOnceTime">Bạn chỉ có thể gửi Báo cáo 1 lần</string>
+    <string name="AccountBusiness">Tài khoản Kinh doanh</string>
+    <string name="AccountBusinessInDevelop">Chúng tôi rất tiếc, Tài khoản Kinh doanh đang trong quá trình phát triển và sẽ sớm hoàn thành trong thời gian sắp tới.</string>
+    <string name="MomoWarning">Cần cập nhật</string>
+    <string name="MomoPhonePI">SỐ ĐIỆN THOẠI ĐĂNG KÝ MOMO</string>
+    <string name="EstimatedTime">Thời gian dự kiến: %1$d phút</string>
+
+    // Report issue reasons
+    <string name="ReportIssueReason1">Chi phí chuyến đi chưa hợp lý</string>
+    <string name="ReportIssueReason2">Có lỗi hệ thống</string>
+    <string name="ReportIssueReason3">Tôi đã gặp phải tai nạn</string>
+    <string name="ReportIssueReason4">Điểm đến không đúng</string>
+    <string name="ReportIssueReason5">Lý do khác</string>
+
+    // Trip status
+    <string name="StatusNew">MỚI TẠO</string>
+    <string name="StatusWaiting">ĐANG CHỜ</string>
+    <string name="StatusAccept">ĐÃ CHẤP NHẬN</string>
+    <string name="StatusRefuse">TỪ CHỐI</string>
+    <string name="StatusPickUpPoint">ĐẾN ĐIỂM ĐÓN</string>
+    <string name="StatusGoing">TRONG HÀNH TRÌNH</string>
+    <string name="StatusPassengerCancel">HÀNH KHÁCH HUỶ</string>
+    <string name="StatusDriverCancel">TÀI XẾ HUỶ</string>
+    <string name="StatusDriverCancelEmergency">HUỶ KHẨN CẤP</string>
+    <string name="StatusArrive">ĐẾN ĐÍCH</string>
+    <string name="StatusCompleted">HOÀN THÀNH</string>
 
     // Setting items
     <string name="SettingTitle1">Thông báo hệ thống</string>

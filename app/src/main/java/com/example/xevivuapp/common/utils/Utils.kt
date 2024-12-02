@@ -91,11 +91,14 @@ object Utils {
     }
 
     fun getHourAndMinute(dateString: String): String {
+        if (dateString.isEmpty()) return "__:__"
         val time = dateString.split(" ")[3]
         return time.substring(0, 5)
     }
 
     fun calculateMinutesDifference(time1: String, time2: String): Long {
+        if (time1.isEmpty() || time2.isEmpty()) return 0
+
         val format = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
 
         val date1 = format.parse(time1)
@@ -150,6 +153,34 @@ object Utils {
             } else {
                 vibrator.vibrate(pattern, -1)
             }
+        }
+    }
+
+    fun String.extractTime(): String {
+        return try {
+            val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+            val outputFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm:ss", Locale.ENGLISH)
+
+            val date = inputFormat.parse(this)
+
+            if (date != null) {
+                outputFormat.format(date)
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+    fun String.toDate(): Date? {
+        return try {
+            val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+            inputFormat.parse(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
