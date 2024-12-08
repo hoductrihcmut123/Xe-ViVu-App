@@ -197,6 +197,14 @@
     <string name="MomoPhonePI">MOMO REGISTERED PHONE NUMBER</string>
     <string name="EstimatedTime">Estimated time: %1$d minute</string>
 
+    // Shortcuts title
+    <string name="SignUpShortcutShortLabel">Sign up</string>
+    <string name="SignUpShortcutLongLabel">Create account</string>
+    <string name="SignUpShortcutDisabledMessage">Account Registration is not currently supported</string>
+    <string name="SignInShortcutShortLabel">Log in</string>
+    <string name="SignInShortcutLongLabel">Log in to your account</string>
+    <string name="SignInShortcutDisabledMessage">Account login is not currently supported</string>
+
     // Report issue reasons
     <string name="ReportIssueReason1">Unreasonable trip costs</string>
     <string name="ReportIssueReason2">There is a system error</string>

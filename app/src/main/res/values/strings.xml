@@ -197,6 +197,14 @@
     <string name="MomoPhonePI">SỐ ĐIỆN THOẠI ĐĂNG KÝ MOMO</string>
     <string name="EstimatedTime">Thời gian dự kiến: %1$d phút</string>
 
+    // Shortcuts title
+    <string name="SignUpShortcutShortLabel">Tạo tài khoản</string>
+    <string name="SignUpShortcutLongLabel">Đăng ký tài khoản</string>
+    <string name="SignUpShortcutDisabledMessage">Hiện chưa hỗ trợ Đăng ký tài khoản</string>
+    <string name="SignInShortcutShortLabel">Đăng nhập</string>
+    <string name="SignInShortcutLongLabel">Đăng nhập tài khoản</string>
+    <string name="SignInShortcutDisabledMessage">Hiện chưa hỗ trợ đăng nhập vào tài khoản</string>
+
     // Report issue reasons
     <string name="ReportIssueReason1">Chi phí chuyến đi chưa hợp lý</string>
     <string name="ReportIssueReason2">Có lỗi hệ thống</string>
