@@ -122,6 +122,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private var isReceiptOpened: Boolean = false
     private var isDriverConfirm: Boolean = false
     private var isFromBottomSheetOnGoing: Boolean = false
+    private var isTurnOnVibrate: Boolean = true
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
 
@@ -242,6 +243,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         mFusedLocationClient = this.let { LocationServices.getFusedLocationProviderClient(it) }
+
+        // Shared Preferences
+        val sharedPreferences = getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        isTurnOnVibrate = sharedPreferences.getBoolean("isTurnOnVibrate", true)
 
         // Set up bottomSheetVehicleType
         bottomSheetVehicleType = BottomSheetBehavior.from(findViewById(R.id.bottomSheetVehicleType))
@@ -537,7 +542,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (driverID.isNotEmpty()) {
                     driversCollection.document(driverID).update(
                         mapOf(
-                            "trip_ID" to FieldValue.delete()
+                            "trip_ID" to FieldValue.delete(),
+                            "cancelInProcess" to true
                         )
                     )
                 }
@@ -1609,12 +1615,16 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                         matchingDocs.removeFirst()
                         notifyEachDriver(matchingDocs, tripID)
                     } else {
-                        vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                        if (isTurnOnVibrate) {
+                            vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                        }
                         resetAfterCancelBooking()
                     }
                 }
                 if (status == Constants.ACCEPT) {
-                    vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    if (isTurnOnVibrate) {
+                        vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    }
                     animator?.cancel()
                     mGoogleMap?.moveCamera(
                         CameraUpdateFactory.newCameraPosition(
@@ -1653,7 +1663,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     listenerDriverLocation(driverID)
                 }
                 if (status == Constants.DRIVER_CANCEL || status == Constants.DRIVER_CANCEL_EMERGENCY) {
-                    vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    if (isTurnOnVibrate) {
+                        vibrateCustomPattern(this, times = 1, duration = 250L, interval = 500L)
+                    }
                     listenerDriver?.remove()
                     mGoogleMap?.clear()
                     binding.driverFoundNotification.isVisible = false
@@ -1665,7 +1677,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     bottomSheetDriverCancel.state = BottomSheetBehavior.STATE_EXPANDED
                 }
                 if (status == Constants.PICK_UP_POINT) {
-                    vibrateCustomPattern(this, times = 3, duration = 250L, interval = 400L)
+                    if (isTurnOnVibrate) {
+                        vibrateCustomPattern(this, times = 3, duration = 250L, interval = 400L)
+                    }
                     binding.title.text = getString(R.string.DriverArrived)
                     binding.driverFoundNotificationContent.text =
                         getString(R.string.DriverArrivedNotification)

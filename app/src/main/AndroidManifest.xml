@@ -23,38 +23,47 @@
         <activity
             android:name=".features.menu.trip_history.TripDetailActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp"/>
         <activity
             android:name=".features.menu.personal_info.UpdatePersonalInfoActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.support.RequestSupportActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.support.FAQActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.trip_history.TripHistoryActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.support.SupportActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.setting.SettingActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.points.PointActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.menu.personal_info.PersonalInfoActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
 
         <meta-data
@@ -64,38 +73,47 @@
         <activity
             android:name=".signup_login.forgot_password.NewPasswordActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.forgot_password.VerifyPhoneNumFPActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.forgot_password.ForgotPasswordActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.permissions.PermissionActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".features.booking.HomeActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.signup.VerifyPhoneNumActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.signup.SignupActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".signup_login.login.LoginActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.XeVivuApp" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.CustomSplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
